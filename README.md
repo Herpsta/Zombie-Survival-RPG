@@ -9,3 +9,7 @@ This project depends on the following third-party plugins:
 - SimpleSQL: Available on Unity Asset Store
 
 Please install these plugins to run the project successfully.
+
+## Testing
+
+This project uses NUnit for testing. You can install it via Unity's package manager.
