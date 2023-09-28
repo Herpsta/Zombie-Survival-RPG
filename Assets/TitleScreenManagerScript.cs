@@ -16,7 +16,8 @@ public class TitleScreenManager : MonoBehaviour
 
     public void OpenOptions()
     {
-        Debug.Log("Options button clicked");
+        // Load the OptionsScene
+        SceneManager.LoadScene("OptionsScreen");
     }
 
     public void OpenCredits()
