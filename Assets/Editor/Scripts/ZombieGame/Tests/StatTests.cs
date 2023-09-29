@@ -15,7 +15,3 @@ namespace ZombieGame.Tests
         }
     }
 
-    internal class TestAttribute : Attribute
-    {
-    }
-}
