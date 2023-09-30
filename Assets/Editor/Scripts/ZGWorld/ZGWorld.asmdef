@@ -1,7 +1,11 @@
 {
     "name": "ZGWorld",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "ZGCore",
+        "ZGEntities",
+        "ZGItems"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

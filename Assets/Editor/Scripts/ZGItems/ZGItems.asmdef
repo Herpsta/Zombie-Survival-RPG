@@ -1,7 +1,9 @@
 {
     "name": "ZGItems",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "ZGCore"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

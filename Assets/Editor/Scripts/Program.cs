@@ -1,8 +1,8 @@
 using System;
-using ZombieGame.Core;
-using ZombieGame.Entities;
-using ZombieGame.Items;
-using ZombieGame.World;
+using ZGCore;
+using ZGEntities;
+using ZGItems;
+using ZGWorld;
 
 namespace ZombieGame
 {

@@ -1,7 +1,9 @@
 {
     "name": "ZGEntities",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "ZGCore"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
