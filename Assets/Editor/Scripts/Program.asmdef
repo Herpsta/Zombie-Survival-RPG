@@ -1,0 +1,20 @@
+{
+    "name": "Program",
+    "rootNamespace": "",
+    "references": [
+        "ZGCharacterCreation",
+        "ZGCore",
+        "ZGEntities",
+        "ZGItems",
+        "ZGWorld"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
