@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,7 @@ public class UIManager : MonoBehaviour
 {
     public Text introText;
     public Button startButton;
+    public Slider healthBar; // Add this line to reference the health bar UI element
 
     // Start is called before the first frame update
     void Start()
@@ -26,5 +28,11 @@ public class UIManager : MonoBehaviour
     {
         // Load the Main Menu scene
         SceneManager.LoadScene("MainMenu");
+    }
+
+    // Add this function to update the health bar
+    public void UpdateHealthBar(float currentHealth)
+    {
+        healthBar.value = currentHealth;
     }
 }
