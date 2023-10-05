@@ -1,23 +1,36 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using FMODUnity;
 
-public class FMODUIButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
+public class FMODUIButton : MonoBehaviour
 {
     [SerializeField]
-    private string fmodEventPathClick; // FMOD Event path for click, e.g., "event:/ButtonClick"
+    private string fmodEventPathClick = "event:/Events/ButtonPressed"; // FMOD Event path for click
 
     [SerializeField]
-    private string fmodEventPathRollover; // FMOD Event path for rollover, e.g., "event:/ButtonRollover"
+    private string fmodEventPathRollover = "event:/Events/ButtonRollover"; // FMOD Event path for rollover
+
+    private PointerEventData latestEventData;
 
     public void OnPointerEnter(PointerEventData eventData)
+    {
+        latestEventData = eventData;
+        OnPointerEnterWrapper();
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        latestEventData = eventData;
+        OnPointerClickWrapper();
+    }
+
+    public void OnPointerEnterWrapper()
     {
         // Play rollover sound
         PlayFMODSound(fmodEventPathRollover);
     }
 
-    public void OnPointerClick(PointerEventData eventData)
+    public void OnPointerClickWrapper()
     {
         // Play click sound
         PlayFMODSound(fmodEventPathClick);
