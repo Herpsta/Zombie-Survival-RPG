@@ -1,6 +1,9 @@
 @echo off
 setlocal
 
+:: Set the version number
+set VERSION=0.2.4
+
 :: Build the Unity project
 "C:\Program Files\Unity\Hub\Editor\2022.3.10f1\Editor\Unity.exe" -quit -batchmode -projectPath "C:\Users\nyxar\Zombie Survival RPG" -executeMethod BuildGame.BuildAll
 
