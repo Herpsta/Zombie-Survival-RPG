@@ -1,44 +1,54 @@
-name: Build and Release
+name: Auto Versioning with Keywords
 on:
   push:
     branches:
       - main
 
 jobs:
-  build:
-    runs-on: windows-latest
+  versioning:
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Extract version from commit message
-      run: echo "VERSION=$(git log -1 --pretty=%B | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')" >> $GITHUB_ENV
+    - name: Check for existing tags
+      id: checktag
+      run: echo "::set-output name=exists::$(git tag | wc -l)"
 
-    - name: Generate changelog
-      run: git log --pretty=format:"%s" > changelog.txt
+    - name: Get latest tag
+      id: latesttag
+      run: echo "::set-output name=tag::$(git describe --tags --abbrev=0 || echo 'v0.0.0')"
 
-    - name: Build Game
-      env:
-        VERSION: ${{ env.VERSION }}
-      run: .\BuildGame.bat
+    - name: Get latest commit message
+      id: commitmsg
+      run: echo "::set-output name=message::$(git log -1 --pretty=%B)"
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      with:
-        tag_name: ${{ env.VERSION }}
-        release_name: Release ${{ env.VERSION }}
-        body_path: changelog.txt
-        draft: false
-        prerelease: false
+    - name: Increment version based on keywords
+      id: newversion
+      run: |
+        latest_tag=${{ steps.latesttag.outputs.tag }}
+        commit_message=${{ steps.commitmsg.outputs.message }}
+        IFS='.' read -ra VERSION_PARTS <<< "${latest_tag#v}"
+        major=${VERSION_PARTS[0]}
+        minor=${VERSION_PARTS[1]}
+        patch=${VERSION_PARTS[2]}
 
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z
-        asset_name: ZombieSurvivalRPG_${{ env.VERSION }}.7z
-        asset_content_type: application/x-7z-compressed
+        if [[ $commit_message == *"EXPANSION"* ]]; then
+          major=$((major + 1))
+          minor=0
+          patch=0
+        elif [[ $commit_message == *"FEATURE"* ]]; then
+          minor=$((minor + 1))
+          patch=0
+        else
+          patch=$((patch + 1))
+        fi
 
-    - name: Delete .7z File
-      run: rm ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z
+        new_version="v$major.$minor.$patch"
+        echo "::set-output name=version::$new_version"
+
+    - name: Create new tag
+      run: git tag ${{ steps.newversion.outputs.version }}
+
+    - name: Push tags
+      run: git push origin --tags
