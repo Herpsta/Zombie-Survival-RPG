@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
@@ -35,6 +36,27 @@ public class OptionsManager : MonoBehaviour
     {
         // Load saved settings
         LoadOptions();
+
+        // Populate the resolutions array
+        resolutions = Screen.resolutions;
+
+        // Clear existing options in the dropdown
+        resolutionDropdown.ClearOptions();
+
+        // Create a list to hold our options
+        List<string> options = new List<string>();
+
+        // Loop through resolutions and add them to the dropdown
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            string option = resolutions[i].width + " x " + resolutions[i].height;
+            options.Add(option);
+        }
+
+        // Add options to the dropdown
+        resolutionDropdown.AddOptions(options);
+
+        // Optionally, set the default dropdown value here
     }
 
     public void SaveOptions()
@@ -123,20 +145,20 @@ public class OptionsManager : MonoBehaviour
 
     public void SetMusicVolume(float volume)
     {
-        audioMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20);
-        PlayerPrefs.SetFloat("MusicVolume", volume);
+        audioMixer.SetFloat("Music", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("Music", volume);
     }
 
     public void SetVoiceVolume(float volume)
     {
-        audioMixer.SetFloat("VoiceVolume", Mathf.Log10(volume) * 20);
-        PlayerPrefs.SetFloat("VoiceVolume", volume);
+        audioMixer.SetFloat("Voice", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("Voice", volume);
     }
 
     public void SetSFXVolume(float volume)
     {
-        audioMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20);
-        PlayerPrefs.SetFloat("SFXVolume", volume);
+        audioMixer.SetFloat("SFX", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("SFX", volume);
     }
 
     public void SetQuality(int qualityIndex)
@@ -157,4 +179,31 @@ public class OptionsManager : MonoBehaviour
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
 
+    // Function for Colorblind Mode
+    public void SetColorblindMode(bool isColorblind)
+    {
+        PlayerPrefs.SetInt("IsColorblind", isColorblind ? 1 : 0);
+        // Add logic to apply colorblind settings in the game
+    }
+
+    // Function for Font Size
+    public void SetFontSize(int fontSize)
+    {
+        PlayerPrefs.SetInt("FontSize", fontSize);
+        // Add logic to change the font size in the game
+    }
+
+    // Function for Difficulty
+    public void SetDifficulty(int difficultyLevel)
+    {
+        PlayerPrefs.SetInt("DifficultyLevel", difficultyLevel);
+        // Add logic to set the difficulty level in the game
+    }
+
+    // Function for Auto-Save
+    public void SetAutoSave(bool autoSave)
+    {
+        PlayerPrefs.SetInt("AutoSave", autoSave ? 1 : 0);
+        // Add logic to enable/disable auto-save in the game
+    }
 }
