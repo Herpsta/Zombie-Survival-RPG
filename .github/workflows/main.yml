@@ -36,6 +36,6 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Builds/ZombieSurvivalRPG_${{ env.VERSION }}.7z
+        asset_path: ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_name: ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_content_type: application/x-7z-compressed
