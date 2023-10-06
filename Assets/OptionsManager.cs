@@ -37,6 +37,12 @@ public class OptionsManager : MonoBehaviour
         // Load saved settings
         LoadOptions();
 
+        // Hide all panels initially
+        SoundPanel.SetActive(false);
+        GraphicsPanel.SetActive(false);
+        GameplayPanel.SetActive(false);
+        AccessibilityPanel.SetActive(false);
+
         // Populate the resolutions array
         resolutions = Screen.resolutions;
 
