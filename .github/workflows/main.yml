@@ -39,3 +39,6 @@ jobs:
         asset_path: ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_name: ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_content_type: application/x-7z-compressed
+
+    - name: Delete .7z File
+      run: rm ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z
