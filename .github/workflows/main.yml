@@ -11,8 +11,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Debugging
+      run: git log -1 --pretty=%B
+
     - name: Extract version from commit message
-      run: echo "VERSION=$(git log -1 --pretty=%B | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')" >> $GITHUB_ENV
+      run: |
+        VERSION=$(git log -1 --pretty=%B | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+') || VERSION="v0.0.0"
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
@@ -39,11 +44,3 @@ jobs:
         asset_path: ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_name: ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_content_type: application/x-7z-compressed
-
-- name: Debugging
-  run: git log -1 --pretty=%B
-
-- name: Extract version from commit message
-  run: |
-    VERSION=$(git log -1 --pretty=%B | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+') || VERSION="v0.0.0"
-    echo "VERSION=$VERSION" >> $GITHUB_ENV
