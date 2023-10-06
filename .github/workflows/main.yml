@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - main
+    tags-ignore:
+      - '*'
 
 jobs:
   versioning:
@@ -15,6 +17,9 @@ jobs:
 
     - name: Debugging
       run: git log -1 --pretty=%B
+
+    - name: List contents of Releases directory (Debugging)
+      run: ls -l ./Releases/
 
     - name: Extract version from commit message
       shell: bash
