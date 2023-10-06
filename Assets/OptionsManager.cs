@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.Audio;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class OptionsManager : MonoBehaviour
@@ -10,11 +12,13 @@ public class OptionsManager : MonoBehaviour
     public GameObject AccessibilityPanel;
 
     // Sound
+    public AudioMixer audioMixer; // Reference to the Audio Mixer asset
     public Slider musicVolumeSlider;
     public Slider sfxVolumeSlider;
     public Slider voiceVolumeSlider;
 
     // Graphics
+    private Resolution[] resolutions;
     public TMPro.TMP_Dropdown resolutionDropdown;
     public TMPro.TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
@@ -108,4 +112,49 @@ public class OptionsManager : MonoBehaviour
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(true);
     }
+
+    public void CloseOptionsAndReturnToMainMenu()
+    {
+        // Save changes before leaving the Options menu
+        SaveOptions();
+        // Load the main menu scene
+        SceneManager.LoadScene("TitleScreen");
+    }
+
+    public void SetMusicVolume(float volume)
+    {
+        audioMixer.SetFloat("MusicVolume", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("MusicVolume", volume);
+    }
+
+    public void SetVoiceVolume(float volume)
+    {
+        audioMixer.SetFloat("VoiceVolume", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("VoiceVolume", volume);
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        audioMixer.SetFloat("SFXVolume", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("SFXVolume", volume);
+    }
+
+    public void SetQuality(int qualityIndex)
+    {
+        QualitySettings.SetQualityLevel(qualityIndex);
+        PlayerPrefs.SetInt("QualityLevel", qualityIndex);
+    }
+
+    public void SetFullscreen(bool isFullscreen)
+    {
+        Screen.fullScreen = isFullscreen;
+        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);
+    }
+
+    public void ChangeResolution()
+    {
+        Resolution resolution = resolutions[resolutionDropdown.value];
+        Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+    }
+
 }

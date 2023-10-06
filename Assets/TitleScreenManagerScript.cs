@@ -3,6 +3,8 @@ using UnityEngine.SceneManagement;
 
 public class TitleScreenManager : MonoBehaviour
 {
+    public GameObject optionsPanel;  // Reference to the Options Panel GameObject
+
     public void NewGame()
     {
         // SceneManager.LoadScene("CharacterCreation");

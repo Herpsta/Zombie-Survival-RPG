@@ -35,4 +35,12 @@ public class UIManager : MonoBehaviour
     {
         healthBar.value = currentHealth;
     }
+
+    public GameObject optionsPanel;  // Reference to the Options Panel GameObject
+
+    public void OpenOptionsPanel()
+    {
+        optionsPanel.SetActive(true);
+    }
+
 }
