@@ -44,7 +44,7 @@ jobs:
         draft: false
         prerelease: false
       env:
-        MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
@@ -53,5 +53,3 @@ jobs:
         asset_path: ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_name: ZombieSurvivalRPG_${{ env.VERSION }}.7z
         asset_content_type: application/x-7z-compressed
-      env:
-        MY_GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
