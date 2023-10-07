@@ -15,8 +15,10 @@ jobs:
         fetch-depth: 0  # Fetches all history for all branches and tags
         lfs: true
 
-    - name: Generate changelog
-      run: git log --pretty=format:"%s" > changelog.txt
+    - name: Get commit message
+      id: get_commit_message
+      run: |
+        echo "::set-output name=message::$(git log -1 --pretty=format:"%s%n%n%b" ${{ github.ref }})"
 
     - name: Install GitHub CLI
       run: |
@@ -28,7 +30,7 @@ jobs:
 
     - name: Create Release and Upload Asset
       run: |
-        gh release create ${{ github.ref_name }} ./Releases/ZombieSurvivalRPG_v${{ github.ref_name }}.7z -t "Release ${{ github.ref_name }}" -n "" -F changelog.txt
+        gh release create ${{ github.ref_name }} ./Releases/ZombieSurvivalRPG_v${{ github.ref_name }}.7z -t "Release ${{ github.ref_name }}" -n "${{ steps.get_commit_message.outputs.message }}"
 
     - name: Log error
       if: failure()
