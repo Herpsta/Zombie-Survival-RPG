@@ -32,8 +32,8 @@ jobs:
 
     - name: Run BuildGame.bat
       run: |
-        cd ${{ github.workspace }}  # Navigate to the workspace directory
-        "C:\Users\nyxar\Zombie Survival RPG\BuildGame.bat" ${{ github.ref_name }}
+        cd "${{ github.workspace }}"  # Navigate to the workspace directory
+        "C:\Users\nyxar\Zombie Survival RPG\BuildGame.bat" "${{ github.ref_name }}"
 
     - name: Log error
       if: failure()
