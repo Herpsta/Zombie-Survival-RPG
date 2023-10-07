@@ -15,11 +15,9 @@ jobs:
         fetch-depth: 0  # Fetches all history for all branches and tags
         lfs: true
 
-    # Generates a changelog based on your Git history
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
 
-    # Creates a new GitHub release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -30,9 +28,8 @@ jobs:
         draft: false  # The release is not a draft
         prerelease: false  # The release is not a pre-release
       env:
-        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # GitHub token for authentication
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token for authentication
 
-    # Uploads the built game as a release asset
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       with:
@@ -41,8 +38,11 @@ jobs:
         asset_name: ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Name of the asset
         asset_content_type: application/x-7z-compressed  # Content type of the asset
 
-    # Run the batch file to create the 7z archive
     - name: Run BuildGame.bat
       run: |
         cd ${{ github.workspace }}  # Navigate to the workspace directory
         "C:\Users\nyxar\Zombie Survival RPG\BuildGame.bat" ${{ github.ref_name }}
+
+    - name: Log error
+      if: failure()
+      run: echo "An error occurred in the previous steps"
