@@ -15,7 +15,7 @@ jobs:
       run: git log -1 --pretty=%B
 
     - name: Extract version from commit message
-      run: echo "VERSION=$(git log -1 --pretty=%B | Select-String -Pattern 'v[0-9]+\.[0-9]+\.[0-9]+')" >> $GITHUB_ENV
+      run: echo "VERSION=$(git log -1 --pretty=%B | Select-String -Pattern 'v[0-9]+\\.[0-9]+\\.[0-9]+')" >> $GITHUB_ENV
 
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
