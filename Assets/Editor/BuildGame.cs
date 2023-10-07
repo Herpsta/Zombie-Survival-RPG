@@ -1,5 +1,5 @@
 using System;
-using System.Diagnostics;  // Add this line for Process
+using System.Diagnostics;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -57,10 +57,10 @@ public class BuildGame : EditorWindow
 
         BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
 
-        // Run the batch file
+        // Run the batch file with the version argument
         Process process = new Process();
         process.StartInfo.FileName = "BuildGame.bat";
-        process.StartInfo.Arguments = version;  // Pass the version as an argument
+        process.StartInfo.Arguments = version;
         process.Start();
     }
 }
