@@ -1,6 +1,7 @@
-using UnityEditor;
-using System.Diagnostics;
 using System;
+using System.IO;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
 
 public class BuildGame
 {
@@ -8,20 +9,39 @@ public class BuildGame
     public static void BuildAll()
     {
         string version = Environment.GetEnvironmentVariable("VERSION");
-        BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
-        buildPlayerOptions.scenes = new[]
+        if (string.IsNullOrEmpty(version))
         {
-            "Assets/Scenes/SplashScreen.unity",
-            "Assets/Scenes/TitleScreen.unity",
-            "Assets/Scenes/OptionsScreen.unity"
-        };
-        buildPlayerOptions.locationPathName = $"Builds/ZombieSurvivalRPG_v{version}.exe";
+            version = "default_version"; // Replace with your default versioning scheme
+        }
+
+        string buildPath = $"Builds/ZombieSurvivalRPG_v{version}";
+
+        // Create directory if it doesn't exist
+        if (!Directory.Exists(buildPath))
+        {
+            Directory.CreateDirectory(buildPath);
+        }
+        else
+        {
+            // Delete existing files
+            DirectoryInfo di = new DirectoryInfo(buildPath);
+            foreach (FileInfo file in di.GetFiles())
+            {
+                file.Delete();
+            }
+            foreach (DirectoryInfo dir in di.GetDirectories())
+            {
+                dir.Delete(true);
+            }
+        }
+
+        BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
+        buildPlayerOptions.scenes = new[] { "Assets/Scenes/SplashScreen.unity", "Assets/Scenes/TitleScreen.unity", "Assets/Scenes/OptionsScreen.unity" };
+        buildPlayerOptions.locationPathName = $"{buildPath}/ZombieSurvivalRPG.exe";
         buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
         buildPlayerOptions.options = BuildOptions.None;
-        BuildPipeline.BuildPlayer(buildPlayerOptions);
 
-        Process process = new Process();
-        process.StartInfo.FileName = "BuildGame.bat";
-        process.Start();
+        BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
+        // Optionally, you can add code here to handle the build report
     }
 }
