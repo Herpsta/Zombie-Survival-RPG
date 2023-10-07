@@ -18,9 +18,6 @@ jobs:
     - name: Debugging
       run: git log -1 --pretty=%B
 
-    - name: List contents of Releases directory (Debugging)
-      run: ls -l ./Releases/
-
     - name: Extract version from commit message
       shell: bash
       run: |
@@ -34,6 +31,15 @@ jobs:
       env:
         VERSION: ${{ env.VERSION }}
       run: .\BuildGame.bat
+
+    - name: Wait for .7z file to be generated
+      run: |
+        while [ ! -f ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z ]; do
+          sleep 5
+        done
+
+    - name: List contents of Releases directory (Debugging)
+      run: ls -l ./Releases/
 
     - name: Create Release
       id: create_release
