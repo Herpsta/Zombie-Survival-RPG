@@ -17,3 +17,5 @@ namespace ZGItems
         }
     }
 }
+
+// TODO: Redo how items are managed in the code.
