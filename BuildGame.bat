@@ -7,8 +7,8 @@ git lfs pull
 :: Debug: Show when the script starts
 echo Script started.
 
-:: Set the path to the Builds directory
-set "buildsDir=C:\Users\nyxar\Zombie Survival RPG\Builds"
+:: Set the path to the Builds directory relative to the workspace
+set "buildsDir=%cd%\Builds"
 
 :: Debug: Show the Builds directory
 echo Builds directory is %buildsDir%.
@@ -22,7 +22,7 @@ echo Most recently modified folder is !latestFolder!.
 :: Create the .7z archive using the most recently modified folder
 if defined latestFolder (
     echo Creating 7z archive.
-    "C:\Program Files\7-Zip\7z.exe" a -t7z "C:\Users\nyxar\Zombie Survival RPG\Releases\!latestFolder!.7z" "%buildsDir%\!latestFolder!\*"
+    "C:\Program Files\7-Zip\7z.exe" a -t7z "%cd%\Releases\!latestFolder!.7z" "%buildsDir%\!latestFolder!\*"
     echo 7z archive created.
 ) else (
     echo No folders found in the Builds directory.
