@@ -28,6 +28,12 @@ if defined latestFolder (
     echo No folders found in the Builds directory.
 )
 
+:: Generate checksum for the game build
+CertUtil -hashfile "%cd%\Releases\!latestFolder!.7z" SHA256 > "%cd%\Releases\!latestFolder!.sha256"
+
+:: Generate checksum for custom art assets (example)
+:: CertUtil -hashfile "path\to\your\art\assets" SHA256 > "path\to\checksum\file"
+
 :: Debug: Show when the script ends
 echo Script ended.
 
