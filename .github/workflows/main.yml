@@ -3,26 +3,16 @@ on:
   push:
     branches:
       - main
-    tags-ignore:
-      - '*'
 
 jobs:
   versioning:
     runs-on: windows-latest
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Debugging
-      run: git log -1 --pretty=%B
-
     - name: Extract version from commit message
-      shell: bash
-      run: |
-        VERSION=$(git log -1 --pretty=%B | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+') || VERSION="v0.0.0"
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+      run: echo "VERSION=$(git log -1 --pretty=%B | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')" >> $GITHUB_ENV
 
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
@@ -33,13 +23,11 @@ jobs:
       run: .\BuildGame.bat
 
     - name: Wait for .7z file to be generated
+      shell: bash
       run: |
         while [ ! -f ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z ]; do
           sleep 5
         done
-
-    - name: List contents of Releases directory (Debugging)
-      run: ls -l ./Releases/
 
     - name: Create Release
       id: create_release
