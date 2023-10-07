@@ -35,6 +35,7 @@ jobs:
       run: .\BuildGame.bat
 
     - name: Wait for build to complete
+      shell: bash
       run: while [ ! -f ./Releases/ZombieSurvivalRPG_${{ env.VERSION }}.7z ]; do sleep 1; done
 
     - name: Create Release
