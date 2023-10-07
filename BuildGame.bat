@@ -4,6 +4,9 @@ setlocal
 :: Prompt the user for the version number
 set /p VERSION="Enter the version number: "
 
+:: Set the VERSION environment variable
+setx VERSION %VERSION%
+
 :: Create the Build and Release folders if they don't exist
 if not exist "Builds" mkdir "Builds"
 if not exist "Releases" mkdir "Releases"
@@ -15,7 +18,7 @@ for /d %%X in ("Releases\*") do rmdir /s /q "%%X"
 
 :: Build the Unity project
 echo Building the Unity project...
-"C:\Program Files\Unity\Hub\Editor\2022.3.10f1\Editor\Unity.exe" -quit -batchmode -projectPath "%CD%" -executeMethod BuildGame.BuildAll "%VERSION%"
+"C:\Program Files\Unity\Hub\Editor\2022.3.10f1\Editor\Unity.exe" -quit -batchmode -projectPath "%CD%" -executeMethod BuildGame.BuildAll
 
 :: Create a .7z archive with the version number in the filename
 echo Creating .7z archive...

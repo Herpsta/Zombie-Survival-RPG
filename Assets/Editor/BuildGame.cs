@@ -1,27 +1,23 @@
-using UnityEngine;
 using UnityEditor;
 using System.Diagnostics;
-using System.IO;
+using System;
 
 public class BuildGame
 {
     [MenuItem("Build/Build All")]
     public static void BuildAll()
     {
+        string version = Environment.GetEnvironmentVariable("VERSION");
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
         buildPlayerOptions.scenes = new[]
         {
-            "Assets/Scenes/GameScene.unity",
-            "Assets/Scenes/Old.unity",
-            "Assets/Scenes/OptionsScreen.unity",
-            "Assets/Scenes/PlayerInventoryScreen.unity",
             "Assets/Scenes/SplashScreen.unity",
-            "Assets/Scenes/TitleScreen.unity"
+            "Assets/Scenes/TitleScreen.unity",
+            "Assets/Scenes/OptionsScreen.unity"
         };
-        buildPlayerOptions.locationPathName = "Builds/ZombieSurvivalRPG.exe";
+        buildPlayerOptions.locationPathName = $"Builds/ZombieSurvivalRPG_v{version}.exe";
         buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
         buildPlayerOptions.options = BuildOptions.None;
-
         BuildPipeline.BuildPlayer(buildPlayerOptions);
 
         Process process = new Process();
