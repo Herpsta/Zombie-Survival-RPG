@@ -2,18 +2,31 @@ using System;
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
+using UnityEngine;
 
-public class BuildGame
+public class BuildGame : EditorWindow
 {
-    [MenuItem("Build/Build All")]
-    public static void BuildAll()
-    {
-        string version = Environment.GetEnvironmentVariable("VERSION");
-        if (string.IsNullOrEmpty(version))
-        {
-            version = "default_version"; // Replace with your default versioning scheme
-        }
+    string version = "default_version";
 
+    [MenuItem("Build/Build All")]
+    public static void ShowWindow()
+    {
+        EditorWindow.GetWindow(typeof(BuildGame));
+    }
+
+    void OnGUI()
+    {
+        GUILayout.Label("Enter the version number", EditorStyles.boldLabel);
+        version = EditorGUILayout.TextField("Version", version);
+
+        if (GUILayout.Button("Build"))
+        {
+            BuildAll();
+        }
+    }
+
+    void BuildAll()
+    {
         string buildPath = $"Builds/ZombieSurvivalRPG_v{version}";
 
         // Create directory if it doesn't exist
