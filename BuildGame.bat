@@ -1,6 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Add this line to pull LFS objects
+git lfs pull
+
 :: Debug: Show when the script starts
 echo Script started.
 

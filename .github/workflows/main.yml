@@ -13,6 +13,7 @@ jobs:
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0  # Fetches all history for all branches and tags
+        lfs: true
 
     # Generates a changelog based on your Git history
     - name: Generate changelog
