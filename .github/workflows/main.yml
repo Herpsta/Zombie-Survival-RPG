@@ -14,11 +14,6 @@ jobs:
       with: 
         fetch-depth: 0  # this fetches all history so that tags are fetched too
 
-    - name: Extract or Generate version
-      shell: bash
-      run: |
-        # ... (no changes here)
-
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
 
