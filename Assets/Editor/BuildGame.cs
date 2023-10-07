@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class BuildGame : EditorWindow
 {
+
     string version = "default_version";
 
     [MenuItem("Build/Build All")]
@@ -27,7 +28,7 @@ public class BuildGame : EditorWindow
 
     void BuildAll()
     {
-        string buildPath = $"Builds/ZombieSurvivalRPG_v{version}";
+        string buildPath = $"C:\\Users\\nyxar\\Zombie Survival RPG\\Builds\\ZombieSurvivalRPG_v{version}";
 
         // Create directory if it doesn't exist
         if (!Directory.Exists(buildPath))
