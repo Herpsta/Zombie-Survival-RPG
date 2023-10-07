@@ -1,4 +1,4 @@
-name: Auto Versioning and Build
+name: Build and Release
 on:
   push:
     branches:
@@ -11,10 +11,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Debug last commit message
-      run: git log -1 --pretty=%B
-
     - name: Extract or Generate version
+      shell: bash
       run: |
         LAST_VERSION=$(git describe --tags --abbrev=0)
         if [[ $LAST_VERSION == "" ]]; then
@@ -32,8 +30,6 @@ jobs:
       run: git log --pretty=format:"%s" > changelog.txt
 
     - name: Build Game
-      env:
-        VERSION: ${{ env.VERSION }}
       run: .\BuildGame.bat
 
     - name: Create Release
@@ -45,8 +41,6 @@ jobs:
         body_path: changelog.txt
         draft: false
         prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
