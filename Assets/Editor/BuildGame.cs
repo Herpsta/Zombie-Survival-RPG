@@ -28,6 +28,7 @@ public class BuildGame : EditorWindow
 
     void BuildAll()
     {
+        System.Diagnostics.Process.Start("git", "lfs pull");
         string buildPath = $"C:\\Users\\nyxar\\Zombie Survival RPG\\Builds\\ZombieSurvivalRPG_v{version}";
 
         // Create directory if it doesn't exist
