@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;  // Add this line for Process
 using System.IO;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
@@ -6,7 +7,6 @@ using UnityEngine;
 
 public class BuildGame : EditorWindow
 {
-
     string version = "default_version";
 
     [MenuItem("Build/Build All")]
@@ -56,6 +56,11 @@ public class BuildGame : EditorWindow
         buildPlayerOptions.options = BuildOptions.None;
 
         BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
-        // Optionally, you can add code here to handle the build report
+
+        // Run the batch file
+        Process process = new Process();
+        process.StartInfo.FileName = "BuildGame.bat";
+        process.StartInfo.Arguments = version;  // Pass the version as an argument
+        process.Start();
     }
 }

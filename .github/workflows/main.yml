@@ -1,21 +1,14 @@
-# This is the name of the GitHub Actions workflow
 name: Build and Release
 
-# This workflow is triggered when a new tag is created
 on:
   create:
     tags:
       - '*'
 
-# Define the jobs to be run
 jobs:
   build:
-    # The type of runner that the job will run on
     runs-on: windows-latest
-
-    # A list of steps that the job will run
     steps:
-    # Checks out a copy of your repository on the runner
     - name: Checkout code
       uses: actions/checkout@v2
       with: 
@@ -24,11 +17,6 @@ jobs:
     # Generates a changelog based on your Git history
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
-
-    # Runs your batch file to build the game
-    # Passes the tag name as an argument to the batch file
-    - name: Build Game
-      run: .\BuildGame.bat ${{ github.ref_name }}
 
     # Creates a new GitHub release
     - name: Create Release
