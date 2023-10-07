@@ -36,6 +36,6 @@ jobs:
       uses: actions/upload-release-asset@v1
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}  # Gets the upload URL from the create_release step
-        asset_path: ./Releases/ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Path to the asset to upload
+        asset_path: C:\Users\nyxar\Zombie Survival RPG\Releases\ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Path to the asset to upload
         asset_name: ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Name of the asset
         asset_content_type: application/x-7z-compressed  # Content type of the asset
