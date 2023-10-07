@@ -1,11 +1,11 @@
-name: Auto Versioning with Keywords
+name: Auto Versioning and Build
 on:
   push:
     branches:
       - main
 
 jobs:
-  versioning:
+  build:
     runs-on: windows-latest
     steps:
     - name: Checkout code
@@ -14,8 +14,19 @@ jobs:
     - name: Debug last commit message
       run: git log -1 --pretty=%B
 
-    - name: Extract version from commit message
-      run: echo "VERSION=$(git log -1 --pretty=%B | Select-String -Pattern 'v[0-9]+\\.[0-9]+\\.[0-9]+')" >> $GITHUB_ENV
+    - name: Extract or Generate version
+      run: |
+        LAST_VERSION=$(git describe --tags --abbrev=0)
+        if [[ $LAST_VERSION == "" ]]; then
+          LAST_VERSION="v0.0.0"
+        fi
+        VERSION=$(git log -1 --pretty=%B | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')
+        if [[ $VERSION == "" ]]; then
+          IFS='.' read -ra PARTS <<< "${LAST_VERSION:1}"
+          NEW_PATCH=$((PARTS[2] + 1))
+          VERSION="v${PARTS[0]}.${PARTS[1]}.$NEW_PATCH"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
