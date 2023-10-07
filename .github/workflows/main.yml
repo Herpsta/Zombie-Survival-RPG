@@ -1,41 +1,53 @@
+# This is the name of the GitHub Actions workflow
 name: Build and Release
 
+# This workflow is triggered when a new tag is created
 on:
   create:
     tags:
       - '*'
 
+# Define the jobs to be run
 jobs:
   build:
+    # The type of runner that the job will run on
     runs-on: windows-latest
+
+    # A list of steps that the job will run
     steps:
+    # Checks out a copy of your repository on the runner
     - name: Checkout code
       uses: actions/checkout@v2
       with: 
-        fetch-depth: 0
+        fetch-depth: 0  # Fetches all history for all branches and tags
 
+    # Generates a changelog based on your Git history
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
 
+    # Runs your batch file to build the game
+    # Passes the tag name as an argument to the batch file
     - name: Build Game
       run: .\BuildGame.bat ${{ github.ref_name }}
 
+    # Creates a new GitHub release
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       with:
-        tag_name: ${{ github.ref_name }}
-        release_name: Release ${{ github.ref_name }}
-        body_path: changelog.txt
-        draft: false
-        prerelease: false
+        tag_name: ${{ github.ref_name }}  # Uses the tag name for the release
+        release_name: Release ${{ github.ref_name }}  # Sets the release name
+        body_path: changelog.txt  # Sets the body of the release to the changelog
+        draft: false  # The release is not a draft
+        prerelease: false  # The release is not a pre-release
       env:
-        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}  # GitHub token for authentication
 
+    # Uploads the built game as a release asset
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./Releases/ZombieSurvivalRPG_v${{ github.ref_name }}.7z
-        asset_name: ZombieSurvivalRPG_v${{ github.ref_name }}.7z
-        asset_content_type: application/x-7z-compressed
+        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Gets the upload URL from the create_release step
+        asset_path: ./Releases/ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Path to the asset to upload
+        asset_name: ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Name of the asset
+        asset_content_type: application/x-7z-compressed  # Content type of the asset
