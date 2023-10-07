@@ -18,25 +18,17 @@ jobs:
     - name: Generate changelog
       run: git log --pretty=format:"%s" > changelog.txt
 
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      with:
-        tag_name: ${{ github.ref_name }}  # Uses the tag name for the release
-        release_name: Release ${{ github.ref_name }}  # Sets the release name
-        body_path: changelog.txt  # Sets the body of the release to the changelog
-        draft: false  # The release is not a draft
-        prerelease: false  # The release is not a pre-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # GitHub token for authentication
+    - name: Install GitHub CLI
+      run: |
+        choco install gh -y
 
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}  # Gets the upload URL from the create_release step
-        asset_path: ./Releases/ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Path to the asset to upload
-        asset_name: ZombieSurvivalRPG_v${{ github.ref_name }}.7z  # Name of the asset
-        asset_content_type: application/x-7z-compressed  # Content type of the asset
+    - name: Authenticate with GitHub CLI
+      run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+    - name: Create Release and Upload Asset
+      run: |
+        gh release create ${{ github.ref_name }} ./Releases/ZombieSurvivalRPG_v${{ github.ref_name }}.7z -t "Release ${{ github.ref_name }}" -n "" -F changelog.txt
 
     - name: Run BuildGame.bat
       run: |
