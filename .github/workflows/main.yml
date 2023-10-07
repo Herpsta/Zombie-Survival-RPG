@@ -10,8 +10,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # this fetches all history so that tags are fetched too
+      with: 
+        fetch-depth: 0  # this fetches all history so that tags are fetched too
 
     - name: Extract or Generate version
       shell: bash
