@@ -3,11 +3,11 @@ using UnityEngine;
 using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class OptionsManager : MonoBehaviour
 {
-    // Singleton instance
-    public static OptionsManager Instance;
+    public static OptionsManager Instance;  // Singleton instance
 
     // Panels
     public GameObject SoundPanel;
@@ -16,7 +16,7 @@ public class OptionsManager : MonoBehaviour
     public GameObject AccessibilityPanel;
 
     // Sound
-    public AudioMixer audioMixer;
+    public AudioMixer audioMixer; // Reference to the Audio Mixer asset
     public Slider musicVolumeSlider;
     public Slider sfxVolumeSlider;
     public Slider voiceVolumeSlider;
@@ -26,11 +26,8 @@ public class OptionsManager : MonoBehaviour
     public TMPro.TMP_Dropdown resolutionDropdown;
     public TMPro.TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
-    private HashSet<string> uniqueAspectRatios;
-    public TMPro.TMP_Dropdown aspectRatioDropdown;
     private Dictionary<string, List<string>> aspectRatioToResolutions;
-
-
+    public TMPro.TMP_Dropdown aspectRatioDropdown;
 
     // Gameplay
     public Toggle autoSaveToggle;
@@ -48,6 +45,7 @@ public class OptionsManager : MonoBehaviour
 
     private void Awake()
     {
+        // Singleton logic
         if (Instance == null)
         {
             Instance = this;
@@ -58,49 +56,15 @@ public class OptionsManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        // Initialize the set to store unique aspect ratios
-        uniqueAspectRatios = new HashSet<string>();
-
-        // Populate the resolutions array
-        resolutions = Screen.resolutions;
-
-        // Clear existing options in the dropdown
-        resolutionDropdown.ClearOptions();
-
-        // Create a list to hold our options
-        List<string> options = new List<string>();
-
-        // Loop through resolutions and add them to the dropdown
-        for (int i = 0; i < resolutions.Length; i++)
-        {
-            float aspectRatio = (float)resolutions[i].width / (float)resolutions[i].height;
-            string aspectRatioStr = aspectRatio.ToString("0.00");
-
-            // Only add resolutions with unique aspect ratios to dropdown
-            if (!uniqueAspectRatios.Contains(aspectRatioStr))
-            {
-                string optionText = resolutions[i].width + " x " + resolutions[i].height + " (" + aspectRatioStr + ")";
-                options.Add(optionText);
-                uniqueAspectRatios.Add(aspectRatioStr);
-            }
-        }
-
-        // Add options to the dropdown
-        resolutionDropdown.AddOptions(options);
-
-        // Initialize the dictionary to store resolutions for each aspect ratio
+        // Initialize aspect ratio to resolutions mapping
         aspectRatioToResolutions = new Dictionary<string, List<string>>();
 
-        // Create a list to hold aspect ratio options
+        // Populate aspect ratio dropdown and aspectRatioToResolutions dictionary
         List<string> aspectRatioOptions = new List<string>();
-
-        // Loop through resolutions and categorize them by aspect ratio
-        for (int i = 0; i < resolutions.Length; i++)
+        foreach (Resolution res in Screen.resolutions)
         {
-            float aspectRatio = (float)resolutions[i].width / (float)resolutions[i].height;
+            float aspectRatio = (float)res.width / (float)res.height;
             string aspectRatioStr = aspectRatio.ToString("0.00");
-
-            string resolutionStr = resolutions[i].width + " x " + resolutions[i].height;
 
             if (!aspectRatioToResolutions.ContainsKey(aspectRatioStr))
             {
@@ -108,16 +72,26 @@ public class OptionsManager : MonoBehaviour
                 aspectRatioOptions.Add(aspectRatioStr);
             }
 
+            string resolutionStr = res.width + " x " + res.height;
             aspectRatioToResolutions[aspectRatioStr].Add(resolutionStr);
         }
 
-        // Add aspect ratio options to the aspect ratio dropdown
         aspectRatioDropdown.AddOptions(aspectRatioOptions);
-
         aspectRatioDropdown.onValueChanged.AddListener(delegate { UpdateResolutionDropdown(); });
 
+        // Initialize resolution dropdown based on the first aspect ratio
+        UpdateResolutionDropdown();
+    }
 
+    private void UpdateResolutionDropdown()
+    {
+        string selectedAspectRatio = aspectRatioDropdown.options[aspectRatioDropdown.value].text;
+        resolutionDropdown.ClearOptions();
 
+        if (aspectRatioToResolutions.ContainsKey(selectedAspectRatio))
+        {
+            resolutionDropdown.AddOptions(aspectRatioToResolutions[selectedAspectRatio]);
+        }
     }
 
     private void Start()
@@ -265,22 +239,6 @@ public class OptionsManager : MonoBehaviour
         Resolution resolution = resolutions[resolutionDropdown.value];
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
-
-    private void UpdateResolutionDropdown()
-    {
-        // Get the selected aspect ratio
-        string selectedAspectRatio = aspectRatioDropdown.options[aspectRatioDropdown.value].text;
-
-        // Clear existing options in the resolution dropdown
-        resolutionDropdown.ClearOptions();
-
-        // Add resolutions that match the selected aspect ratio
-        if (aspectRatioToResolutions.ContainsKey(selectedAspectRatio))
-        {
-            resolutionDropdown.AddOptions(aspectRatioToResolutions[selectedAspectRatio]);
-        }
-    }
-
 
     // Function for Colorblind Mode
     public void SetColorblindMode(bool isColorblind)
