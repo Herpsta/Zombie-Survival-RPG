@@ -161,6 +161,11 @@ public class OptionsManager : MonoBehaviour
         SceneManager.LoadScene("TitleScreen");
     }
 
+    public void ApplySettings()
+    {
+        SaveOptions();
+    }
+
     public void SetMusicVolume(float volume)
     {
         audioMixer.SetFloat("Music", Mathf.Log10(volume) * 20);
