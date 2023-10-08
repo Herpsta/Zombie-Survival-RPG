@@ -54,56 +54,6 @@ public class OptionsManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
-        InitializeDropdowns();
-    }
-
-    private void InitializeDropdowns()
-    {
-        // Populate aspect ratio and resolutions dictionaries
-        aspectRatioToResolutions = new Dictionary<float, List<Resolution>>();
-
-        foreach (Resolution res in Screen.resolutions)
-        {
-            float aspectRatio = (float)res.width / (float)res.height;
-            if (!aspectRatioToResolutions.ContainsKey(aspectRatio))
-            {
-                aspectRatioToResolutions[aspectRatio] = new List<Resolution>();
-            }
-
-            aspectRatioToResolutions[aspectRatio].Add(res);
-        }
-
-        PopulateAspectRatioDropdown();
-    }
-
-    private void PopulateAspectRatioDropdown()
-    {
-        List<string> aspectRatioOptions = new List<string>();
-        foreach (float aspectRatio in aspectRatioToResolutions.Keys)
-        {
-            aspectRatioOptions.Add(aspectRatio.ToString("0.00"));
-        }
-
-        aspectRatioDropdown.AddOptions(aspectRatioOptions);
-        aspectRatioDropdown.onValueChanged.AddListener(delegate { UpdateResolutionDropdown(); });
-        UpdateResolutionDropdown();  // Update the resolution dropdown with the initial aspect ratio selection
-    }
-
-    private void UpdateResolutionDropdown()
-    {
-        resolutionDropdown.ClearOptions();
-        float selectedAspectRatio = float.Parse(aspectRatioDropdown.options[aspectRatioDropdown.value].text);
-        if (aspectRatioToResolutions.ContainsKey(selectedAspectRatio))
-        {
-            List<string> resolutionOptions = new List<string>();
-            foreach (Resolution res in aspectRatioToResolutions[selectedAspectRatio])
-            {
-                resolutionOptions.Add(res.width + " x " + res.height);
-            }
-
-            resolutionDropdown.AddOptions(resolutionOptions);
-        }
     }
 
     public void ChangeResolution()
