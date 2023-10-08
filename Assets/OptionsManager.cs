@@ -6,6 +6,8 @@ using UnityEngine.UI;
 
 public class OptionsManager : MonoBehaviour
 {
+    public static OptionsManager Instance;  // Singleton instance
+
     // Panels
     public GameObject SoundPanel;
     public GameObject GraphicsPanel;
@@ -19,7 +21,7 @@ public class OptionsManager : MonoBehaviour
     public Slider voiceVolumeSlider;
 
     // Graphics
-    private Resolution[] resolutions;
+    public Resolution[] resolutions;
     public TMPro.TMP_Dropdown resolutionDropdown;
     public TMPro.TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
@@ -37,6 +39,19 @@ public class OptionsManager : MonoBehaviour
     public Text graphicsDescription;
     public Text gameplayDescription;
     public Text accessibilityDescription;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     private void Start()
     {
