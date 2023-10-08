@@ -6,7 +6,8 @@ using UnityEngine.UI;
 
 public class OptionsManager : MonoBehaviour
 {
-    public static OptionsManager Instance;  // Singleton instance
+    // Singleton instance
+    public static OptionsManager Instance;
 
     // Panels
     public GameObject SoundPanel;
@@ -15,7 +16,7 @@ public class OptionsManager : MonoBehaviour
     public GameObject AccessibilityPanel;
 
     // Sound
-    public AudioMixer audioMixer; // Reference to the Audio Mixer asset
+    public AudioMixer audioMixer;
     public Slider musicVolumeSlider;
     public Slider sfxVolumeSlider;
     public Slider voiceVolumeSlider;
@@ -25,6 +26,7 @@ public class OptionsManager : MonoBehaviour
     public TMPro.TMP_Dropdown resolutionDropdown;
     public TMPro.TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
+    private HashSet<string> uniqueAspectRatios;  // Added for unique aspect ratios
 
     // Gameplay
     public Toggle autoSaveToggle;
@@ -34,7 +36,7 @@ public class OptionsManager : MonoBehaviour
     public TMPro.TMP_Dropdown fontSizeDropdown;
     public Toggle colorblindModeToggle;
 
-    // New code: Text descriptions for each panel
+    // Text descriptions for each panel
     public Text soundDescription;
     public Text graphicsDescription;
     public Text gameplayDescription;
@@ -55,6 +57,9 @@ public class OptionsManager : MonoBehaviour
 
     private void Start()
     {
+        // Initialize the set to store unique aspect ratios
+        uniqueAspectRatios = new HashSet<string>();
+
         // Load saved settings
         LoadOptions();
 
@@ -64,7 +69,7 @@ public class OptionsManager : MonoBehaviour
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(false);
 
-        // New code: Set text descriptions
+        // Set text descriptions
         soundDescription.text = "Adjust the volume levels for music, SFX, and voice.";
         graphicsDescription.text = "Change the resolution and quality settings.";
         gameplayDescription.text = "Modify gameplay settings like difficulty.";
@@ -77,19 +82,28 @@ public class OptionsManager : MonoBehaviour
         resolutionDropdown.ClearOptions();
 
         // Create a list to hold our options
-        List<string> options = new List<string>();
+        List<TMPro.TMP_Dropdown.OptionData> options = new List<TMPro.TMP_Dropdown.OptionData>();
 
         // Loop through resolutions and add them to the dropdown
         for (int i = 0; i < resolutions.Length; i++)
         {
-            string option = resolutions[i].width + " x " + resolutions[i].height;
-            options.Add(option);
+            float aspectRatio = (float)resolutions[i].width / (float)resolutions[i].height;
+            string aspectRatioStr = aspectRatio.ToString("0.00");
+
+            // Only add resolutions with unique aspect ratios to dropdown
+            if (!uniqueAspectRatios.Contains(aspectRatioStr))
+            {
+                string optionText = resolutions[i].width + " x " + resolutions[i].height + " (" + aspectRatioStr + ")";
+                options.Add(new TMPro.TMP_Dropdown.OptionData(optionText));
+                uniqueAspectRatios.Add(aspectRatioStr);
+            }
         }
 
         // Add options to the dropdown
         resolutionDropdown.AddOptions(options);
 
-        // Optionally, set the default dropdown value here
+        // Listen for change events
+        resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
     }
 
     public void SaveOptions()

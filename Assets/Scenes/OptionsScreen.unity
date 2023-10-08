@@ -5879,6 +5879,18 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 7236048283460038943}
     - target: {fileID: 2242786078643692437, guid: a1b01983777da6f449f0bf939844af3a, type: 3}
+      propertyPath: backButton
+      value: 
+      objectReference: {fileID: 4503550580942840202}
+    - target: {fileID: 2242786078643692437, guid: a1b01983777da6f449f0bf939844af3a, type: 3}
+      propertyPath: applyButton
+      value: 
+      objectReference: {fileID: 2904296699915857585}
+    - target: {fileID: 2242786078643692437, guid: a1b01983777da6f449f0bf939844af3a, type: 3}
+      propertyPath: closeButton
+      value: 
+      objectReference: {fileID: 4319293456869399140}
+    - target: {fileID: 2242786078643692437, guid: a1b01983777da6f449f0bf939844af3a, type: 3}
       propertyPath: buttons.Array.size
       value: 8
       objectReference: {fileID: 0}
@@ -5912,6 +5924,10 @@ PrefabInstance:
       objectReference: {fileID: 4503550580942840202}
     - target: {fileID: 2242786078643692437, guid: a1b01983777da6f449f0bf939844af3a, type: 3}
       propertyPath: buttons.Array.data[7]
+      value: 
+      objectReference: {fileID: 22780683432713497}
+    - target: {fileID: 2242786078643692437, guid: a1b01983777da6f449f0bf939844af3a, type: 3}
+      propertyPath: defaultSettingsButton
       value: 
       objectReference: {fileID: 22780683432713497}
     - target: {fileID: 8622154913221478033, guid: a1b01983777da6f449f0bf939844af3a, type: 3}
