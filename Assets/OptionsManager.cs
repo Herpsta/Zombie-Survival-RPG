@@ -26,7 +26,7 @@ public class OptionsManager : MonoBehaviour
     public TMPro.TMP_Dropdown resolutionDropdown;
     public TMPro.TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
-    private HashSet<string> uniqueAspectRatios;  // Added for unique aspect ratios
+    private HashSet<string> uniqueAspectRatios;
 
     // Gameplay
     public Toggle autoSaveToggle;
@@ -53,13 +53,40 @@ public class OptionsManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        // Initialize the set to store unique aspect ratios
+        uniqueAspectRatios = new HashSet<string>();
+
+        // Populate the resolutions array
+        resolutions = Screen.resolutions;
+
+        // Clear existing options in the dropdown
+        resolutionDropdown.ClearOptions();
+
+        // Create a list to hold our options
+        List<string> options = new List<string>();
+
+        // Loop through resolutions and add them to the dropdown
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            float aspectRatio = (float)resolutions[i].width / (float)resolutions[i].height;
+            string aspectRatioStr = aspectRatio.ToString("0.00");
+
+            // Only add resolutions with unique aspect ratios to dropdown
+            if (!uniqueAspectRatios.Contains(aspectRatioStr))
+            {
+                string optionText = resolutions[i].width + " x " + resolutions[i].height + " (" + aspectRatioStr + ")";
+                options.Add(optionText);
+                uniqueAspectRatios.Add(aspectRatioStr);
+            }
+        }
+
+        // Add options to the dropdown
+        resolutionDropdown.AddOptions(options);
     }
 
     private void Start()
     {
-        // Initialize the set to store unique aspect ratios
-        uniqueAspectRatios = new HashSet<string>();
-
         // Load saved settings
         LoadOptions();
 
@@ -74,33 +101,6 @@ public class OptionsManager : MonoBehaviour
         graphicsDescription.text = "Change the resolution and quality settings.";
         gameplayDescription.text = "Modify gameplay settings like difficulty.";
         accessibilityDescription.text = "Customize settings for better accessibility.";
-
-        // Populate the resolutions array
-        resolutions = Screen.resolutions;
-
-        // Clear existing options in the dropdown
-        resolutionDropdown.ClearOptions();
-
-        // Create a list to hold our options
-        List<TMPro.TMP_Dropdown.OptionData> options = new List<TMPro.TMP_Dropdown.OptionData>();
-
-        // Loop through resolutions and add them to the dropdown
-        for (int i = 0; i < resolutions.Length; i++)
-        {
-            float aspectRatio = (float)resolutions[i].width / (float)resolutions[i].height;
-            string aspectRatioStr = aspectRatio.ToString("0.00");
-
-            // Only add resolutions with unique aspect ratios to dropdown
-            if (!uniqueAspectRatios.Contains(aspectRatioStr))
-            {
-                string optionText = resolutions[i].width + " x " + resolutions[i].height + " (" + aspectRatioStr + ")";
-                options.Add(new TMPro.TMP_Dropdown.OptionData(optionText));
-                uniqueAspectRatios.Add(aspectRatioStr);
-            }
-        }
-
-        // Add options to the dropdown
-        resolutionDropdown.AddOptions(options);
 
         // Listen for change events
         resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
