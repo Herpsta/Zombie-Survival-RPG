@@ -22,11 +22,10 @@ public class OptionsManager : MonoBehaviour
     public Slider voiceVolumeSlider;
 
     // Graphics
-    public Resolution[] resolutions;
     public TMPro.TMP_Dropdown resolutionDropdown;
     public TMPro.TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
-    private Dictionary<string, List<string>> aspectRatioToResolutions;
+    private Dictionary<float, List<Resolution>> aspectRatioToResolutions;
     public TMPro.TMP_Dropdown aspectRatioDropdown;
 
     // Gameplay
@@ -56,42 +55,65 @@ public class OptionsManager : MonoBehaviour
             Destroy(gameObject);
         }
 
-        // Initialize aspect ratio to resolutions mapping
-        aspectRatioToResolutions = new Dictionary<string, List<string>>();
+        InitializeDropdowns();
+    }
 
-        // Populate aspect ratio dropdown and aspectRatioToResolutions dictionary
-        List<string> aspectRatioOptions = new List<string>();
+    private void InitializeDropdowns()
+    {
+        // Populate aspect ratio and resolutions dictionaries
+        aspectRatioToResolutions = new Dictionary<float, List<Resolution>>();
+
         foreach (Resolution res in Screen.resolutions)
         {
             float aspectRatio = (float)res.width / (float)res.height;
-            string aspectRatioStr = aspectRatio.ToString("0.00");
-
-            if (!aspectRatioToResolutions.ContainsKey(aspectRatioStr))
+            if (!aspectRatioToResolutions.ContainsKey(aspectRatio))
             {
-                aspectRatioToResolutions[aspectRatioStr] = new List<string>();
-                aspectRatioOptions.Add(aspectRatioStr);
+                aspectRatioToResolutions[aspectRatio] = new List<Resolution>();
             }
 
-            string resolutionStr = res.width + " x " + res.height;
-            aspectRatioToResolutions[aspectRatioStr].Add(resolutionStr);
+            aspectRatioToResolutions[aspectRatio].Add(res);
+        }
+
+        PopulateAspectRatioDropdown();
+    }
+
+    private void PopulateAspectRatioDropdown()
+    {
+        List<string> aspectRatioOptions = new List<string>();
+        foreach (float aspectRatio in aspectRatioToResolutions.Keys)
+        {
+            aspectRatioOptions.Add(aspectRatio.ToString("0.00"));
         }
 
         aspectRatioDropdown.AddOptions(aspectRatioOptions);
         aspectRatioDropdown.onValueChanged.AddListener(delegate { UpdateResolutionDropdown(); });
-
-        // Initialize resolution dropdown based on the first aspect ratio
-        UpdateResolutionDropdown();
+        UpdateResolutionDropdown();  // Update the resolution dropdown with the initial aspect ratio selection
     }
 
     private void UpdateResolutionDropdown()
     {
-        string selectedAspectRatio = aspectRatioDropdown.options[aspectRatioDropdown.value].text;
         resolutionDropdown.ClearOptions();
-
+        float selectedAspectRatio = float.Parse(aspectRatioDropdown.options[aspectRatioDropdown.value].text);
         if (aspectRatioToResolutions.ContainsKey(selectedAspectRatio))
         {
-            resolutionDropdown.AddOptions(aspectRatioToResolutions[selectedAspectRatio]);
+            List<string> resolutionOptions = new List<string>();
+            foreach (Resolution res in aspectRatioToResolutions[selectedAspectRatio])
+            {
+                resolutionOptions.Add(res.width + " x " + res.height);
+            }
+
+            resolutionDropdown.AddOptions(resolutionOptions);
         }
+    }
+
+    public void ChangeResolution()
+    {
+        float selectedAspectRatio = float.Parse(aspectRatioDropdown.options[aspectRatioDropdown.value].text);
+        string selectedResolution = resolutionDropdown.options[resolutionDropdown.value].text;
+        string[] dimensions = selectedResolution.Split('x');
+        int width = int.Parse(dimensions[0]);
+        int height = int.Parse(dimensions[1]);
+        Screen.SetResolution(width, height, Screen.fullScreen);
     }
 
     private void Start()
@@ -232,12 +254,6 @@ public class OptionsManager : MonoBehaviour
     {
         Screen.fullScreen = isFullscreen;
         PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);
-    }
-
-    public void ChangeResolution()
-    {
-        Resolution resolution = resolutions[resolutionDropdown.value];
-        Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
 
     // Function for Colorblind Mode
