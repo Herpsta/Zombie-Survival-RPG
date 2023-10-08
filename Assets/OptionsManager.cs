@@ -32,6 +32,12 @@ public class OptionsManager : MonoBehaviour
     public TMPro.TMP_Dropdown fontSizeDropdown;
     public Toggle colorblindModeToggle;
 
+    // New code: Text descriptions for each panel
+    public Text soundDescription;
+    public Text graphicsDescription;
+    public Text gameplayDescription;
+    public Text accessibilityDescription;
+
     private void Start()
     {
         // Load saved settings
@@ -42,6 +48,12 @@ public class OptionsManager : MonoBehaviour
         GraphicsPanel.SetActive(false);
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(false);
+
+        // New code: Set text descriptions
+        soundDescription.text = "Adjust the volume levels for music, SFX, and voice.";
+        graphicsDescription.text = "Change the resolution and quality settings.";
+        gameplayDescription.text = "Modify gameplay settings like difficulty.";
+        accessibilityDescription.text = "Customize settings for better accessibility.";
 
         // Populate the resolutions array
         resolutions = Screen.resolutions;
