@@ -27,6 +27,10 @@ public class OptionsManager : MonoBehaviour
     public TMPro.TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
     private HashSet<string> uniqueAspectRatios;
+    public TMPro.TMP_Dropdown aspectRatioDropdown;
+    private Dictionary<string, List<string>> aspectRatioToResolutions;
+
+
 
     // Gameplay
     public Toggle autoSaveToggle;
@@ -83,6 +87,37 @@ public class OptionsManager : MonoBehaviour
 
         // Add options to the dropdown
         resolutionDropdown.AddOptions(options);
+
+        // Initialize the dictionary to store resolutions for each aspect ratio
+        aspectRatioToResolutions = new Dictionary<string, List<string>>();
+
+        // Create a list to hold aspect ratio options
+        List<string> aspectRatioOptions = new List<string>();
+
+        // Loop through resolutions and categorize them by aspect ratio
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            float aspectRatio = (float)resolutions[i].width / (float)resolutions[i].height;
+            string aspectRatioStr = aspectRatio.ToString("0.00");
+
+            string resolutionStr = resolutions[i].width + " x " + resolutions[i].height;
+
+            if (!aspectRatioToResolutions.ContainsKey(aspectRatioStr))
+            {
+                aspectRatioToResolutions[aspectRatioStr] = new List<string>();
+                aspectRatioOptions.Add(aspectRatioStr);
+            }
+
+            aspectRatioToResolutions[aspectRatioStr].Add(resolutionStr);
+        }
+
+        // Add aspect ratio options to the aspect ratio dropdown
+        aspectRatioDropdown.AddOptions(aspectRatioOptions);
+
+        aspectRatioDropdown.onValueChanged.AddListener(delegate { UpdateResolutionDropdown(); });
+
+
+
     }
 
     private void Start()
@@ -230,6 +265,22 @@ public class OptionsManager : MonoBehaviour
         Resolution resolution = resolutions[resolutionDropdown.value];
         Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
     }
+
+    private void UpdateResolutionDropdown()
+    {
+        // Get the selected aspect ratio
+        string selectedAspectRatio = aspectRatioDropdown.options[aspectRatioDropdown.value].text;
+
+        // Clear existing options in the resolution dropdown
+        resolutionDropdown.ClearOptions();
+
+        // Add resolutions that match the selected aspect ratio
+        if (aspectRatioToResolutions.ContainsKey(selectedAspectRatio))
+        {
+            resolutionDropdown.AddOptions(aspectRatioToResolutions[selectedAspectRatio]);
+        }
+    }
+
 
     // Function for Colorblind Mode
     public void SetColorblindMode(bool isColorblind)
