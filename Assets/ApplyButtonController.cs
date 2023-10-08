@@ -1,32 +1,43 @@
 using UnityEngine;
-using UnityEngine.UI;
-
+using FMODUnity;  // Assuming FMODUnity is the correct namespace
 
 public class ApplyButtonController : MonoBehaviour
 {
-    public Button applyButton;  // Reference to the Apply button
-    private bool settingsChanged = false;  // Flag to track if settings have changed
+    public FMODUIButton applyButton;  // Changed to FMODUIButton
+    private bool settingsChanged = false;
 
     void Start()
     {
-        // Initially set the Apply button to be non-interactable
-        applyButton.interactable = false;
+        // Disable the button at the start
+        DisableButton();
     }
 
-    // Call this function whenever a setting changes
     public void OnSettingChanged()
     {
         settingsChanged = true;
-        applyButton.interactable = true;  // Enable the Apply button
+        // Enable the button when a setting is changed
+        EnableButton();
     }
 
-    // Call this function when the Apply button is clicked
     public void OnApplyButtonClicked()
     {
         OptionsManager.Instance.ApplySettings();
-
-        // Reset the flag and disable the Apply button
         settingsChanged = false;
-        applyButton.interactable = false;
+        // Disable the button after applying settings
+        DisableButton();
+    }
+
+    private void DisableButton()
+    {
+        // Custom logic to disable the FMODUIButton
+        // Using GameObject's SetActive method as a placeholder
+        applyButton.gameObject.SetActive(false);
+    }
+
+    private void EnableButton()
+    {
+        // Custom logic to enable the FMODUIButton
+        // Using GameObject's SetActive method as a placeholder
+        applyButton.gameObject.SetActive(true);
     }
 }
