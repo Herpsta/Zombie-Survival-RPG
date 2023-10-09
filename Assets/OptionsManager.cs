@@ -9,12 +9,22 @@ using UnityEngine.Events;
 public class OptionsManager : MonoBehaviour
 {
     public static OptionsManager Instance;  // Singleton instance
+                                            
+    // To hide the 4 buttons when any panel is active
+    public GameObject buttonContainer;
+    public GameObject applyButton;
 
     // Panels
     public GameObject SoundPanel;
     public GameObject GraphicsPanel;
     public GameObject GameplayPanel;
     public GameObject AccessibilityPanel;
+
+    // Panel Titles
+    public TMP_Text soundPanelTitle;
+    public TMP_Text graphicsPanelTitle;
+    public TMP_Text gameplayPanelTitle;
+    public TMP_Text accessibilityPanelTitle;
 
     // Sound
     public AudioMixer audioMixer;
@@ -111,24 +121,6 @@ public class OptionsManager : MonoBehaviour
         AddToggleListener(fullscreenToggle, SetFullscreen, "fullscreenToggle is null");
         AddToggleListener(autoSaveToggle, SetAutoSave, "autoSaveToggle is null");
         AddToggleListener(colorblindModeToggle, SetColorblindMode, "colorblindModeToggle is null");
-
-        // Debug logs
-        Debug.Log("Is SoundPanel null? " + (SoundPanel == null));
-        Debug.Log("Is GraphicsPanel null? " + (GraphicsPanel == null));
-        Debug.Log("Is GameplayPanel null? " + (GameplayPanel == null));
-        Debug.Log("Is AccessibilityPanel null? " + (AccessibilityPanel == null));
-        Debug.Log("Is audioMixer null? " + (audioMixer == null));
-        Debug.Log("Is musicVolumeSlider null? " + (musicVolumeSlider == null));
-        Debug.Log("Is sfxVolumeSlider null? " + (sfxVolumeSlider == null));
-        Debug.Log("Is voiceVolumeSlider null? " + (voiceVolumeSlider == null));
-        Debug.Log("Is resolutionDropdown null? " + (resolutionDropdown == null));
-        Debug.Log("Is qualityDropdown null? " + (qualityDropdown == null));
-        Debug.Log("Is fullscreenToggle null? " + (fullscreenToggle == null));
-        Debug.Log("Is aspectRatioDropdown null? " + (aspectRatioDropdown == null));
-        Debug.Log("Is autoSaveToggle null? " + (autoSaveToggle == null));
-        Debug.Log("Is difficultyDropdown null? " + (difficultyDropdown == null));
-        Debug.Log("Is fontSizeDropdown null? " + (fontSizeDropdown == null));
-        Debug.Log("Is colorblindModeToggle null? " + (colorblindModeToggle == null));
 
         // Set text descriptions
         if (soundDescription != null)
@@ -260,6 +252,9 @@ public class OptionsManager : MonoBehaviour
     // Show Sound Panel and hide others
     public void ShowSoundPanel()
     {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
         SoundPanel.SetActive(true);
         GraphicsPanel.SetActive(false);
         GameplayPanel.SetActive(false);
@@ -269,6 +264,9 @@ public class OptionsManager : MonoBehaviour
     // Show Graphics Panel and hide others
     public void ShowGraphicsPanel()
     {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
         // Lazy initialization for dropdowns
         if (!isResolutionDropdownPopulated)
         {
@@ -295,6 +293,9 @@ public class OptionsManager : MonoBehaviour
     // Show Gameplay Panel and hide others
     public void ShowGameplayPanel()
     {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
         // Lazy initialization for dropdowns
         if (!isDifficultyDropdownPopulated)
         {
@@ -311,6 +312,9 @@ public class OptionsManager : MonoBehaviour
     // Show Accessibility Panel and hide others
     public void ShowAccessibilityPanel()
     {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
         // Lazy initialization for dropdowns
         if (!isFontSizeDropdownPopulated)
         {
