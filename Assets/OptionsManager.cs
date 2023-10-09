@@ -37,10 +37,10 @@ public class OptionsManager : MonoBehaviour
     public Toggle colorblindModeToggle;
 
     // Text descriptions for each panel
-    public Text soundDescription;
-    public Text graphicsDescription;
-    public Text gameplayDescription;
-    public Text accessibilityDescription;
+    public TMP_Text soundDescription;
+    public TMP_Text graphicsDescription;
+    public TMP_Text gameplayDescription;
+    public TMP_Text accessibilityDescription;
 
     private void Awake()
     {
@@ -77,14 +77,69 @@ public class OptionsManager : MonoBehaviour
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(false);
 
-        // Set text descriptions
-        soundDescription.text = "Adjust the volume levels for music, SFX, and voice.";
-        graphicsDescription.text = "Change the resolution and quality settings.";
-        gameplayDescription.text = "Modify gameplay settings like difficulty.";
-        accessibilityDescription.text = "Customize settings for better accessibility.";
+        // Debug logs to check if any public variables are null
+        Debug.Log("Is SoundPanel null? " + (SoundPanel == null));
+        Debug.Log("Is GraphicsPanel null? " + (GraphicsPanel == null));
+        Debug.Log("Is GameplayPanel null? " + (GameplayPanel == null));
+        Debug.Log("Is AccessibilityPanel null? " + (AccessibilityPanel == null));
+        Debug.Log("Is audioMixer null? " + (audioMixer == null));
+        Debug.Log("Is musicVolumeSlider null? " + (musicVolumeSlider == null));
+        Debug.Log("Is sfxVolumeSlider null? " + (sfxVolumeSlider == null));
+        Debug.Log("Is voiceVolumeSlider null? " + (voiceVolumeSlider == null));
+        Debug.Log("Is qualityDropdown null? " + (qualityDropdown == null));
+        Debug.Log("Is fullscreenToggle null? " + (fullscreenToggle == null));
+        Debug.Log("Is aspectRatioDropdown null? " + (aspectRatioDropdown == null));
+        Debug.Log("Is autoSaveToggle null? " + (autoSaveToggle == null));
+        Debug.Log("Is difficultyDropdown null? " + (difficultyDropdown == null));
+        Debug.Log("Is fontSizeDropdown null? " + (fontSizeDropdown == null));
+        Debug.Log("Is colorblindModeToggle null? " + (colorblindModeToggle == null));
+
+        // Set text descriptions with null checks
+        if (soundDescription != null)
+        {
+            soundDescription.text = "Adjust the volume levels for music, SFX, and voice.";
+        }
+        else
+        {
+            Debug.LogError("soundDescription is null");
+        }
+
+        if (graphicsDescription != null)
+        {
+            graphicsDescription.text = "Change the resolution and quality settings.";
+        }
+        else
+        {
+            Debug.LogError("graphicsDescription is null");
+        }
+
+        if (gameplayDescription != null)
+        {
+            gameplayDescription.text = "Modify gameplay settings like difficulty.";
+        }
+        else
+        {
+            Debug.LogError("gameplayDescription is null");
+        }
+
+        if (accessibilityDescription != null)
+        {
+            accessibilityDescription.text = "Customize settings for better accessibility.";
+        }
+        else
+        {
+            Debug.LogError("accessibilityDescription is null");
+        }
 
         // Listen for change events
-        resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
+        if (resolutionDropdown != null)
+        {
+            resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
+        }
+        else
+        {
+            Debug.LogError("resolutionDropdown is null");
+        }
     }
 
     public void SaveOptions()
