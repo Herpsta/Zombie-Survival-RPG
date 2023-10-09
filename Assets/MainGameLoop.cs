@@ -45,7 +45,7 @@ public class MainGameLoop : MonoBehaviour
         healthPotion
     };
     }
-    public UIManager uiManager;
+    public SingletonUIManager uiManager;
 
     void InitializeUI()
     {

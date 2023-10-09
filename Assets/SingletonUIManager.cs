@@ -5,11 +5,12 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UIManager : MonoBehaviour
+public class SingletonUIManager : MonoBehaviour
 {
     public Text introText;
     public Button startButton;
     public Slider healthBar; // Add this line to reference the health bar UI element
+    public static SingletonUIManager Instance;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +23,19 @@ public class UIManager : MonoBehaviour
     {
         introText.text = "Welcome to the Zombie Apocalypse!";
     }
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
 
     // This method will be called when the Start button is clicked
     public void StartTheGame()
