@@ -4,6 +4,7 @@ using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Events;
 
 public class OptionsManager : MonoBehaviour
 {
@@ -16,35 +17,41 @@ public class OptionsManager : MonoBehaviour
     public GameObject AccessibilityPanel;
 
     // Sound
-    public AudioMixer audioMixer; // Reference to the Audio Mixer asset
+    public AudioMixer audioMixer;
     public Slider musicVolumeSlider;
     public Slider sfxVolumeSlider;
     public Slider voiceVolumeSlider;
 
     // Graphics
-    public TMPro.TMP_Dropdown resolutionDropdown;
-    public TMPro.TMP_Dropdown qualityDropdown;
+    public TMP_Dropdown resolutionDropdown;
+    public TMP_Dropdown qualityDropdown;
     public Toggle fullscreenToggle;
-    private Dictionary<float, List<Resolution>> aspectRatioToResolutions;
-    public TMPro.TMP_Dropdown aspectRatioDropdown;
+    public TMP_Dropdown aspectRatioDropdown;
+    private Resolution[] resolutions;
 
     // Gameplay
     public Toggle autoSaveToggle;
-    public TMPro.TMP_Dropdown difficultyDropdown;
+    public TMP_Dropdown difficultyDropdown;
 
     // Accessibility
-    public TMPro.TMP_Dropdown fontSizeDropdown;
+    public TMP_Dropdown fontSizeDropdown;
     public Toggle colorblindModeToggle;
 
-    // Text descriptions for each panel
+    // Text Descriptions
     public TMP_Text soundDescription;
     public TMP_Text graphicsDescription;
     public TMP_Text gameplayDescription;
     public TMP_Text accessibilityDescription;
 
+    // Flags for lazy initialization
+    private bool isResolutionDropdownPopulated = false;
+    private bool isQualityDropdownPopulated = false;
+    private bool isAspectRatioDropdownPopulated = false;
+    private bool isDifficultyDropdownPopulated = false;
+    private bool isFontSizeDropdownPopulated = false;
+
     private void Awake()
     {
-        // Singleton logic
         if (Instance == null)
         {
             Instance = this;
@@ -68,16 +75,44 @@ public class OptionsManager : MonoBehaviour
 
     private void Start()
     {
-        // Load saved settings
+        // Load saved options
         LoadOptions();
 
-        // Hide all panels initially
+        // Initialize panels as inactive
         SoundPanel.SetActive(false);
         GraphicsPanel.SetActive(false);
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(false);
 
-        // Debug logs to check if any public variables are null
+        // Populate the resolution dropdown
+        resolutions = Screen.resolutions;
+        List<string> options = new List<string>();
+        foreach (Resolution res in resolutions)
+        {
+            string option = res.width + " x " + res.height;
+            options.Add(option);
+        }
+        resolutionDropdown.ClearOptions();
+        resolutionDropdown.AddOptions(options);
+
+        // Add listeners for UI elements
+        AddDropdownListener(resolutionDropdown, delegate { ChangeResolution(); }, "resolutionDropdown is null");
+        AddDropdownListener(qualityDropdown, delegate { SetQuality(qualityDropdown.value); }, "qualityDropdown is null");
+        AddDropdownListener(aspectRatioDropdown, delegate { ChangeResolution(); }, "aspectRatioDropdown is null");
+        AddDropdownListener(difficultyDropdown, delegate { SetDifficulty(difficultyDropdown.value); }, "difficultyDropdown is null");
+        AddDropdownListener(fontSizeDropdown, delegate { SetFontSize(fontSizeDropdown.value); }, "fontSizeDropdown is null");
+
+        // New: Add listeners for sliders
+        AddSliderListener(musicVolumeSlider, SetMusicVolume, "musicVolumeSlider is null");
+        AddSliderListener(sfxVolumeSlider, SetSFXVolume, "sfxVolumeSlider is null");
+        AddSliderListener(voiceVolumeSlider, SetVoiceVolume, "voiceVolumeSlider is null");
+
+        // New: Add listeners for toggles
+        AddToggleListener(fullscreenToggle, SetFullscreen, "fullscreenToggle is null");
+        AddToggleListener(autoSaveToggle, SetAutoSave, "autoSaveToggle is null");
+        AddToggleListener(colorblindModeToggle, SetColorblindMode, "colorblindModeToggle is null");
+
+        // Debug logs
         Debug.Log("Is SoundPanel null? " + (SoundPanel == null));
         Debug.Log("Is GraphicsPanel null? " + (GraphicsPanel == null));
         Debug.Log("Is GameplayPanel null? " + (GameplayPanel == null));
@@ -86,6 +121,7 @@ public class OptionsManager : MonoBehaviour
         Debug.Log("Is musicVolumeSlider null? " + (musicVolumeSlider == null));
         Debug.Log("Is sfxVolumeSlider null? " + (sfxVolumeSlider == null));
         Debug.Log("Is voiceVolumeSlider null? " + (voiceVolumeSlider == null));
+        Debug.Log("Is resolutionDropdown null? " + (resolutionDropdown == null));
         Debug.Log("Is qualityDropdown null? " + (qualityDropdown == null));
         Debug.Log("Is fullscreenToggle null? " + (fullscreenToggle == null));
         Debug.Log("Is aspectRatioDropdown null? " + (aspectRatioDropdown == null));
@@ -94,7 +130,7 @@ public class OptionsManager : MonoBehaviour
         Debug.Log("Is fontSizeDropdown null? " + (fontSizeDropdown == null));
         Debug.Log("Is colorblindModeToggle null? " + (colorblindModeToggle == null));
 
-        // Set text descriptions with null checks
+        // Set text descriptions
         if (soundDescription != null)
         {
             soundDescription.text = "Adjust the volume levels for music, SFX, and voice.";
@@ -131,14 +167,49 @@ public class OptionsManager : MonoBehaviour
             Debug.LogError("accessibilityDescription is null");
         }
 
-        // Listen for change events
-        if (resolutionDropdown != null)
+        AddDropdownListener(resolutionDropdown, delegate { ChangeResolution(); }, "resolutionDropdown is null");
+        AddDropdownListener(qualityDropdown, delegate { SetQuality(qualityDropdown.value); }, "qualityDropdown is null");
+        AddDropdownListener(aspectRatioDropdown, delegate { ChangeResolution(); }, "aspectRatioDropdown is null");
+        AddDropdownListener(difficultyDropdown, delegate { SetDifficulty(difficultyDropdown.value); }, "difficultyDropdown is null");
+        AddDropdownListener(fontSizeDropdown, delegate { SetFontSize(fontSizeDropdown.value); }, "fontSizeDropdown is null");
+    }
+
+    // New: Generic function to add dropdown listeners
+    private void AddDropdownListener(TMP_Dropdown dropdown, UnityAction<int> action, string errorMessage)
+    {
+        if (dropdown != null)
         {
-            resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
+            dropdown.onValueChanged.AddListener(action);
         }
         else
         {
-            Debug.LogError("resolutionDropdown is null");
+            Debug.LogError(errorMessage);
+        }
+    }
+
+    // New: Generic function to add slider listeners
+    private void AddSliderListener(Slider slider, UnityAction<float> action, string errorMessage)
+    {
+        if (slider != null)
+        {
+            slider.onValueChanged.AddListener(action);
+        }
+        else
+        {
+            Debug.LogError(errorMessage);
+        }
+    }
+
+    // New: Generic function to add toggle listeners
+    private void AddToggleListener(Toggle toggle, UnityAction<bool> action, string errorMessage)
+    {
+        if (toggle != null)
+        {
+            toggle.onValueChanged.AddListener(action);
+        }
+        else
+        {
+            Debug.LogError(errorMessage);
         }
     }
 
@@ -186,6 +257,7 @@ public class OptionsManager : MonoBehaviour
         colorblindModeToggle.isOn = PlayerPrefs.GetInt("ColorblindMode", 0) == 1;
     }
 
+    // Show Sound Panel and hide others
     public void ShowSoundPanel()
     {
         SoundPanel.SetActive(true);
@@ -194,24 +266,58 @@ public class OptionsManager : MonoBehaviour
         AccessibilityPanel.SetActive(false);
     }
 
+    // Show Graphics Panel and hide others
     public void ShowGraphicsPanel()
     {
+        // Lazy initialization for dropdowns
+        if (!isResolutionDropdownPopulated)
+        {
+            PopulateResolutionDropdown();
+            isResolutionDropdownPopulated = true;
+        }
+        if (!isQualityDropdownPopulated)
+        {
+            PopulateQualityDropdown();
+            isQualityDropdownPopulated = true;
+        }
+        if (!isAspectRatioDropdownPopulated)
+        {
+            PopulateAspectRatioDropdown();
+            isAspectRatioDropdownPopulated = true;
+        }
+
         SoundPanel.SetActive(false);
         GraphicsPanel.SetActive(true);
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(false);
     }
 
+    // Show Gameplay Panel and hide others
     public void ShowGameplayPanel()
     {
+        // Lazy initialization for dropdowns
+        if (!isDifficultyDropdownPopulated)
+        {
+            PopulateDifficultyDropdown();
+            isDifficultyDropdownPopulated = true;
+        }
+
         SoundPanel.SetActive(false);
         GraphicsPanel.SetActive(false);
         GameplayPanel.SetActive(true);
         AccessibilityPanel.SetActive(false);
     }
 
+    // Show Accessibility Panel and hide others
     public void ShowAccessibilityPanel()
     {
+        // Lazy initialization for dropdowns
+        if (!isFontSizeDropdownPopulated)
+        {
+            PopulateFontSizeDropdown();
+            isFontSizeDropdownPopulated = true;
+        }
+
         SoundPanel.SetActive(false);
         GraphicsPanel.SetActive(false);
         GameplayPanel.SetActive(false);
@@ -288,4 +394,69 @@ public class OptionsManager : MonoBehaviour
         PlayerPrefs.SetInt("AutoSave", autoSave ? 1 : 0);
         // Add logic to enable/disable auto-save in the game
     }
+
+    // Populate Resolution Dropdown
+    private void PopulateResolutionDropdown()
+    {
+        // Get available screen resolutions
+        Resolution[] resolutions = Screen.resolutions;
+        List<string> options = new List<string>();
+
+        // Loop through and add resolutions to the dropdown
+        foreach (Resolution res in resolutions)
+        {
+            string option = res.width + " x " + res.height;
+            options.Add(option);
+        }
+
+        // Clear and add new options to the dropdown
+        resolutionDropdown.ClearOptions();
+        resolutionDropdown.AddOptions(options);
+    }
+
+    // Populate Quality Dropdown
+    private void PopulateQualityDropdown()
+    {
+        // Get quality settings names
+        string[] qualityNames = QualitySettings.names;
+        List<string> options = new List<string>(qualityNames);
+
+        // Clear and add new options to the dropdown
+        qualityDropdown.ClearOptions();
+        qualityDropdown.AddOptions(options);
+    }
+
+    // Populate Aspect Ratio Dropdown
+    private void PopulateAspectRatioDropdown()
+    {
+        // Define common aspect ratios
+        List<string> options = new List<string> { "16:9", "16:10", "4:3", "3:2" };
+
+        // Clear and add new options to the dropdown
+        aspectRatioDropdown.ClearOptions();
+        aspectRatioDropdown.AddOptions(options);
+    }
+
+    // Populate Difficulty Dropdown
+    private void PopulateDifficultyDropdown()
+    {
+        // Define difficulty levels
+        List<string> options = new List<string> { "Easy", "Medium", "Hard", "Expert" };
+
+        // Clear and add new options to the dropdown
+        difficultyDropdown.ClearOptions();
+        difficultyDropdown.AddOptions(options);
+    }
+
+    // Populate Font Size Dropdown
+    private void PopulateFontSizeDropdown()
+    {
+        // Define font sizes
+        List<string> options = new List<string> { "Small", "Medium", "Large" };
+
+        // Clear and add new options to the dropdown
+        fontSizeDropdown.ClearOptions();
+        fontSizeDropdown.AddOptions(options);
+    }
+
 }
