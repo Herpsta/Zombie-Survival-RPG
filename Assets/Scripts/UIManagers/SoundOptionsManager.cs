@@ -1,18 +1,18 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class SoundOptionsManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public Slider musicVolumeSlider;
+    public Slider sfxVolumeSlider;
+    public Slider voiceVolumeSlider;
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
+        musicVolumeSlider.value = (float)settings["MusicVolume"];
+        sfxVolumeSlider.value = (float)settings["SFXVolume"];
+        voiceVolumeSlider.value = (float)settings["VoiceVolume"];
     }
 }

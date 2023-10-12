@@ -1,18 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class AccessibilityOptionsManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public Dropdown fontSizeDropdown;
+    public Toggle colorblindModeToggle;
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
+        fontSizeDropdown.value = (int)settings["FontSize"];
+        colorblindModeToggle.isOn = (bool)settings["ColorblindMode"];
     }
 }

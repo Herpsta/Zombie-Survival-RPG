@@ -1,18 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class GameplayOptionsManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    public Toggle autoSaveToggle;
+    public Dropdown difficultyDropdown;
+
     void Start()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
+        autoSaveToggle.isOn = (bool)settings["AutoSave"];
+        difficultyDropdown.value = (int)settings["Difficulty"];
     }
 }
