@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.Audio;
 
-public class SoundOptionsManager : Singleton<GraphicsOptionsManager>
+public class SoundOptionsManager : Singleton<SoundOptionsManager>
 {
     public AudioMixer audioMixer;
     public Slider musicVolumeSlider;

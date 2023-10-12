@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class GameplayOptionsManager : Singleton<GraphicsOptionsManager>
+public class GameplayOptionsManager : Singleton<GameplayOptionsManager>
 {
     public Toggle autoSaveToggle;
     public Dropdown difficultyDropdown;

@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class AccessibilityOptionsManager : Singleton<GraphicsOptionsManager>
+public class AccessibilityOptionsManager : Singleton<AccessibilityOptionsManager>
 {
     public Dropdown fontSizeDropdown;
     public Toggle colorblindModeToggle;
