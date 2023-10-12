@@ -7,9 +7,7 @@ using TMPro;
 using UnityEngine.Events;
 
 public class OptionsManager : MonoBehaviour
-{
-    public static OptionsManager Instance;  // Singleton instance
-                                            
+{                       
     // To hide the 4 buttons when any panel is active
     public GameObject buttonContainer;
     public GameObject applyButton;
@@ -26,27 +24,6 @@ public class OptionsManager : MonoBehaviour
     public TMP_Text gameplayPanelTitle;
     public TMP_Text accessibilityPanelTitle;
 
-    // Sound
-    public AudioMixer audioMixer;
-    public Slider musicVolumeSlider;
-    public Slider sfxVolumeSlider;
-    public Slider voiceVolumeSlider;
-
-    // Graphics
-    public TMP_Dropdown resolutionDropdown;
-    public TMP_Dropdown qualityDropdown;
-    public Toggle fullscreenToggle;
-    public TMP_Dropdown aspectRatioDropdown;
-    private Resolution[] resolutions;
-
-    // Gameplay
-    public Toggle autoSaveToggle;
-    public TMP_Dropdown difficultyDropdown;
-
-    // Accessibility
-    public TMP_Dropdown fontSizeDropdown;
-    public Toggle colorblindModeToggle;
-
     // Text Descriptions
     public TMP_Text soundDescription;
     public TMP_Text graphicsDescription;
@@ -60,29 +37,6 @@ public class OptionsManager : MonoBehaviour
     private bool isDifficultyDropdownPopulated = false;
     private bool isFontSizeDropdownPopulated = false;
 
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    public void ChangeResolution()
-    {
-        float selectedAspectRatio = float.Parse(aspectRatioDropdown.options[aspectRatioDropdown.value].text);
-        string selectedResolution = resolutionDropdown.options[resolutionDropdown.value].text;
-        string[] dimensions = selectedResolution.Split('x');
-        int width = int.Parse(dimensions[0]);
-        int height = int.Parse(dimensions[1]);
-        Screen.SetResolution(width, height, Screen.fullScreen);
-    }
-
     private void Start()
     {
         // Load saved options
@@ -93,17 +47,6 @@ public class OptionsManager : MonoBehaviour
         GraphicsPanel.SetActive(false);
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(false);
-
-        // Populate the resolution dropdown
-        resolutions = Screen.resolutions;
-        List<string> options = new List<string>();
-        foreach (Resolution res in resolutions)
-        {
-            string option = res.width + " x " + res.height;
-            options.Add(option);
-        }
-        resolutionDropdown.ClearOptions();
-        resolutionDropdown.AddOptions(options);
 
         // Add listeners for UI elements
         AddDropdownListener(resolutionDropdown, delegate { ChangeResolution(); }, "resolutionDropdown is null");
@@ -205,170 +148,14 @@ public class OptionsManager : MonoBehaviour
         }
     }
 
-
-
-    // Show Sound Panel and hide others
-    public void ShowSoundPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
-
-        SoundPanel.SetActive(true);
-        GraphicsPanel.SetActive(false);
-        GameplayPanel.SetActive(false);
-        AccessibilityPanel.SetActive(false);
-    }
-
-    // Show Graphics Panel and hide others
-    public void ShowGraphicsPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
-
-        // Lazy initialization for dropdowns
-        if (!isResolutionDropdownPopulated)
-        {
-            PopulateResolutionDropdown();
-            isResolutionDropdownPopulated = true;
-        }
-        if (!isQualityDropdownPopulated)
-        {
-            PopulateQualityDropdown();
-            isQualityDropdownPopulated = true;
-        }
-        if (!isAspectRatioDropdownPopulated)
-        {
-            PopulateAspectRatioDropdown();
-            isAspectRatioDropdownPopulated = true;
-        }
-
-        SoundPanel.SetActive(false);
-        GraphicsPanel.SetActive(true);
-        GameplayPanel.SetActive(false);
-        AccessibilityPanel.SetActive(false);
-    }
-
-    // Show Gameplay Panel and hide others
-    public void ShowGameplayPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
-
-        // Lazy initialization for dropdowns
-        if (!isDifficultyDropdownPopulated)
-        {
-            PopulateDifficultyDropdown();
-            isDifficultyDropdownPopulated = true;
-        }
-
-        SoundPanel.SetActive(false);
-        GraphicsPanel.SetActive(false);
-        GameplayPanel.SetActive(true);
-        AccessibilityPanel.SetActive(false);
-    }
-
-    // Show Accessibility Panel and hide others
-    public void ShowAccessibilityPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
-
-        // Lazy initialization for dropdowns
-        if (!isFontSizeDropdownPopulated)
-        {
-            PopulateFontSizeDropdown();
-            isFontSizeDropdownPopulated = true;
-        }
-
-        SoundPanel.SetActive(false);
-        GraphicsPanel.SetActive(false);
-        GameplayPanel.SetActive(false);
-        AccessibilityPanel.SetActive(true);
-    }
-
     public void SaveAllOptions()
     {
-        // Collect settings from each panel-specific manager
-        float musicVolume = SoundOptionsManager.Instance.GetMusicVolume();
-        float sfxVolume = SoundOptionsManager.Instance.GetSFXVolume();
-        float voiceVolume = SoundOptionsManager.Instance.GetVoiceVolume();
-
-        int resolution = GraphicsOptionsManager.Instance.GetResolution();
-        int quality = GraphicsOptionsManager.Instance.GetQuality();
-        bool fullscreen = GraphicsOptionsManager.Instance.GetFullscreen();
-
-        bool autoSave = GameplayOptionsManager.Instance.GetAutoSave();
-        int difficulty = GameplayOptionsManager.Instance.GetDifficulty();
-
-        int fontSize = AccessibilityOptionsManager.Instance.GetFontSize();
-        bool colorblindMode = AccessibilityOptionsManager.Instance.GetColorblindMode();
+        SoundOptionsManager.Instance.SaveOptions();
+        GraphicsOptionsManager.Instance.SaveOptions();
+        GameplayOptionsManager.Instance.SaveOptions();
+        AccessibilityOptionsManager.Instance.SaveOptions();
 
         // Save these settings using SettingsManager
         SettingsManager.Instance.SaveOptions(musicVolume, sfxVolume, voiceVolume, resolution, quality, fullscreen, autoSave, difficulty, fontSize, colorblindMode);
     }
-
-    // Populate Resolution Dropdown
-    private void PopulateResolutionDropdown()
-    {
-        // Get available screen resolutions
-        Resolution[] resolutions = Screen.resolutions;
-        List<string> options = new List<string>();
-
-        // Loop through and add resolutions to the dropdown
-        foreach (Resolution res in resolutions)
-        {
-            string option = res.width + " x " + res.height;
-            options.Add(option);
-        }
-
-        // Clear and add new options to the dropdown
-        resolutionDropdown.ClearOptions();
-        resolutionDropdown.AddOptions(options);
-    }
-
-    // Populate Quality Dropdown
-    private void PopulateQualityDropdown()
-    {
-        // Get quality settings names
-        string[] qualityNames = QualitySettings.names;
-        List<string> options = new List<string>(qualityNames);
-
-        // Clear and add new options to the dropdown
-        qualityDropdown.ClearOptions();
-        qualityDropdown.AddOptions(options);
-    }
-
-    // Populate Aspect Ratio Dropdown
-    private void PopulateAspectRatioDropdown()
-    {
-        // Define common aspect ratios
-        List<string> options = new List<string> { "16:9", "16:10", "4:3", "3:2" };
-
-        // Clear and add new options to the dropdown
-        aspectRatioDropdown.ClearOptions();
-        aspectRatioDropdown.AddOptions(options);
-    }
-
-    // Populate Difficulty Dropdown
-    private void PopulateDifficultyDropdown()
-    {
-        // Define difficulty levels
-        List<string> options = new List<string> { "Easy", "Medium", "Hard", "Expert" };
-
-        // Clear and add new options to the dropdown
-        difficultyDropdown.ClearOptions();
-        difficultyDropdown.AddOptions(options);
-    }
-
-    // Populate Font Size Dropdown
-    private void PopulateFontSizeDropdown()
-    {
-        // Define font sizes
-        List<string> options = new List<string> { "Small", "Medium", "Large" };
-
-        // Clear and add new options to the dropdown
-        fontSizeDropdown.ClearOptions();
-        fontSizeDropdown.AddOptions(options);
-    }
-
 }

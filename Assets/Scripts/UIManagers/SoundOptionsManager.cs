@@ -18,6 +18,18 @@ public class SoundOptionsManager : Singleton<SoundOptionsManager>
         voiceVolumeSlider.value = (float)settings["VoiceVolume"];
     }
 
+    // Show Sound Panel and hide others
+    public void ShowSoundPanel()
+    {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
+        SoundPanel.SetActive(true);
+        GraphicsPanel.SetActive(false);
+        GameplayPanel.SetActive(false);
+        AccessibilityPanel.SetActive(false);
+    }
+
     public void SetMusicVolume(float volume)
     {
         audioMixer.SetFloat("Music", Mathf.Log10(volume) * 20);
@@ -34,5 +46,12 @@ public class SoundOptionsManager : Singleton<SoundOptionsManager>
     {
         audioMixer.SetFloat("SFX", Mathf.Log10(volume) * 20);
         PlayerPrefs.SetFloat("SFX", volume);
+    }
+
+    public void SaveOptions()
+    {
+        float musicVolume = SoundOptionsManager.Instance.GetMusicVolume();
+        float sfxVolume = SoundOptionsManager.Instance.GetSFXVolume();
+        float voiceVolume = SoundOptionsManager.Instance.GetVoiceVolume();
     }
 }
