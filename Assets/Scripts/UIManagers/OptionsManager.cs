@@ -205,49 +205,7 @@ public class OptionsManager : MonoBehaviour
         }
     }
 
-    public void SaveOptions()
-    {
-        // Sound
-        PlayerPrefs.SetFloat("MusicVolume", musicVolumeSlider.value);
-        PlayerPrefs.SetFloat("SFXVolume", sfxVolumeSlider.value);
-        PlayerPrefs.SetFloat("VoiceVolume", voiceVolumeSlider.value);
 
-        // Graphics
-        PlayerPrefs.SetInt("Resolution", resolutionDropdown.value);
-        PlayerPrefs.SetInt("Quality", qualityDropdown.value);
-        PlayerPrefs.SetInt("Fullscreen", fullscreenToggle.isOn ? 1 : 0);
-
-        // Gameplay
-        PlayerPrefs.SetInt("AutoSave", autoSaveToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("Difficulty", difficultyDropdown.value);
-
-        // Accessibility
-        PlayerPrefs.SetInt("FontSize", fontSizeDropdown.value);
-        PlayerPrefs.SetInt("ColorblindMode", colorblindModeToggle.isOn ? 1 : 0);
-
-        PlayerPrefs.Save();
-    }
-
-    public void LoadOptions()
-    {
-        // Sound
-        musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 0.75f);
-        sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 0.75f);
-        voiceVolumeSlider.value = PlayerPrefs.GetFloat("VoiceVolume", 0.75f);
-
-        // Graphics
-        resolutionDropdown.value = PlayerPrefs.GetInt("Resolution", 0);
-        qualityDropdown.value = PlayerPrefs.GetInt("Quality", 0);
-        fullscreenToggle.isOn = PlayerPrefs.GetInt("Fullscreen", 1) == 1;
-
-        // Gameplay
-        autoSaveToggle.isOn = PlayerPrefs.GetInt("AutoSave", 1) == 1;
-        difficultyDropdown.value = PlayerPrefs.GetInt("Difficulty", 0);
-
-        // Accessibility
-        fontSizeDropdown.value = PlayerPrefs.GetInt("FontSize", 0);
-        colorblindModeToggle.isOn = PlayerPrefs.GetInt("ColorblindMode", 0) == 1;
-    }
 
     // Show Sound Panel and hide others
     public void ShowSoundPanel()
