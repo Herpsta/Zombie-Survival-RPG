@@ -86,7 +86,7 @@ public class OptionsManager : MonoBehaviour
     private void Start()
     {
         // Load saved options
-        LoadOptions();
+        SettingsManager.Instance.LoadOptions();
 
         // Initialize panels as inactive
         SoundPanel.SetActive(false);
@@ -286,75 +286,25 @@ public class OptionsManager : MonoBehaviour
         AccessibilityPanel.SetActive(true);
     }
 
-    public void CloseOptionsAndReturnToMainMenu()
+    public void SaveAllOptions()
     {
-        // Save changes before leaving the Options menu
-        SaveOptions();
-        // Load the main menu scene
-        SceneManager.LoadScene("TitleScreen");
-    }
+        // Collect settings from each panel-specific manager
+        float musicVolume = SoundOptionsManager.Instance.GetMusicVolume();
+        float sfxVolume = SoundOptionsManager.Instance.GetSFXVolume();
+        float voiceVolume = SoundOptionsManager.Instance.GetVoiceVolume();
 
-    public void ApplySettings()
-    {
-        SaveOptions();
-    }
+        int resolution = GraphicsOptionsManager.Instance.GetResolution();
+        int quality = GraphicsOptionsManager.Instance.GetQuality();
+        bool fullscreen = GraphicsOptionsManager.Instance.GetFullscreen();
 
-    public void SetMusicVolume(float volume)
-    {
-        audioMixer.SetFloat("Music", Mathf.Log10(volume) * 20);
-        PlayerPrefs.SetFloat("Music", volume);
-    }
+        bool autoSave = GameplayOptionsManager.Instance.GetAutoSave();
+        int difficulty = GameplayOptionsManager.Instance.GetDifficulty();
 
-    public void SetVoiceVolume(float volume)
-    {
-        audioMixer.SetFloat("Voice", Mathf.Log10(volume) * 20);
-        PlayerPrefs.SetFloat("Voice", volume);
-    }
+        int fontSize = AccessibilityOptionsManager.Instance.GetFontSize();
+        bool colorblindMode = AccessibilityOptionsManager.Instance.GetColorblindMode();
 
-    public void SetSFXVolume(float volume)
-    {
-        audioMixer.SetFloat("SFX", Mathf.Log10(volume) * 20);
-        PlayerPrefs.SetFloat("SFX", volume);
-    }
-
-    public void SetQuality(int qualityIndex)
-    {
-        QualitySettings.SetQualityLevel(qualityIndex);
-        PlayerPrefs.SetInt("QualityLevel", qualityIndex);
-    }
-
-    public void SetFullscreen(bool isFullscreen)
-    {
-        Screen.fullScreen = isFullscreen;
-        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);
-    }
-
-    // Function for Colorblind Mode
-    public void SetColorblindMode(bool isColorblind)
-    {
-        PlayerPrefs.SetInt("IsColorblind", isColorblind ? 1 : 0);
-        // Add logic to apply colorblind settings in the game
-    }
-
-    // Function for Font Size
-    public void SetFontSize(int fontSize)
-    {
-        PlayerPrefs.SetInt("FontSize", fontSize);
-        // Add logic to change the font size in the game
-    }
-
-    // Function for Difficulty
-    public void SetDifficulty(int difficultyLevel)
-    {
-        PlayerPrefs.SetInt("DifficultyLevel", difficultyLevel);
-        // Add logic to set the difficulty level in the game
-    }
-
-    // Function for Auto-Save
-    public void SetAutoSave(bool autoSave)
-    {
-        PlayerPrefs.SetInt("AutoSave", autoSave ? 1 : 0);
-        // Add logic to enable/disable auto-save in the game
+        // Save these settings using SettingsManager
+        SettingsManager.Instance.SaveOptions(musicVolume, sfxVolume, voiceVolume, resolution, quality, fullscreen, autoSave, difficulty, fontSize, colorblindMode);
     }
 
     // Populate Resolution Dropdown

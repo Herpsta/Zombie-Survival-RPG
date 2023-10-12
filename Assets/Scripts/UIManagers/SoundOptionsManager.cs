@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.Audio;
 
-public class SoundOptionsManager : MonoBehaviour
+public class SoundOptionsManager : Singleton<GraphicsOptionsManager>
 {
+    public AudioMixer audioMixer;
     public Slider musicVolumeSlider;
     public Slider sfxVolumeSlider;
     public Slider voiceVolumeSlider;
@@ -14,5 +16,23 @@ public class SoundOptionsManager : MonoBehaviour
         musicVolumeSlider.value = (float)settings["MusicVolume"];
         sfxVolumeSlider.value = (float)settings["SFXVolume"];
         voiceVolumeSlider.value = (float)settings["VoiceVolume"];
+    }
+
+    public void SetMusicVolume(float volume)
+    {
+        audioMixer.SetFloat("Music", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("Music", volume);
+    }
+
+    public void SetVoiceVolume(float volume)
+    {
+        audioMixer.SetFloat("Voice", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("Voice", volume);
+    }
+
+    public void SetSFXVolume(float volume)
+    {
+        audioMixer.SetFloat("SFX", Mathf.Log10(volume) * 20);
+        PlayerPrefs.SetFloat("SFX", volume);
     }
 }

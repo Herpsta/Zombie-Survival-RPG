@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
-public class GraphicsOptionsManager : MonoBehaviour
+public class GraphicsOptionsManager : Singleton<GraphicsOptionsManager>
 {
     public Dropdown resolutionDropdown;
     public Dropdown qualityDropdown;
@@ -14,5 +14,17 @@ public class GraphicsOptionsManager : MonoBehaviour
         resolutionDropdown.value = (int)settings["Resolution"];
         qualityDropdown.value = (int)settings["Quality"];
         fullscreenToggle.isOn = (bool)settings["Fullscreen"];
+    }
+
+    public void SetQuality(int qualityIndex)
+    {
+        QualitySettings.SetQualityLevel(qualityIndex);
+        PlayerPrefs.SetInt("QualityLevel", qualityIndex);
+    }
+
+    public void SetFullscreen(bool isFullscreen)
+    {
+        Screen.fullScreen = isFullscreen;
+        PlayerPrefs.SetInt("Fullscreen", isFullscreen ? 1 : 0);
     }
 }
