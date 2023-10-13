@@ -109,6 +109,25 @@ public class OptionsManager : MonoBehaviour
         AddDropdownListener(fontSizeDropdown, delegate { SetFontSize(fontSizeDropdown.value); }, "fontSizeDropdown is null");
     }
 
+    // Show Gameplay Panel and hide others
+    public void ShowGameplayPanel()
+    {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
+        // Lazy initialization for dropdowns
+        if (!isDifficultyDropdownPopulated)
+        {
+            PopulateDifficultyDropdown();
+            isDifficultyDropdownPopulated = true;
+        }
+
+        SoundPanel.SetActive(false);
+        GraphicsPanel.SetActive(false);
+        GameplayPanel.SetActive(true);
+        AccessibilityPanel.SetActive(false);
+    }
+
     // New: Generic function to add dropdown listeners
     private void AddDropdownListener(TMP_Dropdown dropdown, UnityAction<int> action, string errorMessage)
     {
@@ -157,5 +176,64 @@ public class OptionsManager : MonoBehaviour
 
         // Save these settings using SettingsManager
         SettingsManager.Instance.SaveOptions(musicVolume, sfxVolume, voiceVolume, resolution, quality, fullscreen, autoSave, difficulty, fontSize, colorblindMode);
+    }
+
+    // Show Sound Panel and hide others
+    public void ShowSoundPanel()
+    {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+        SoundPanel.SetActive(true);
+        GraphicsPanel.SetActive(false);
+        GameplayPanel.SetActive(false);
+        AccessibilityPanel.SetActive(false);
+    }
+
+    // Show Accessibility Panel and hide others
+    public void ShowAccessibilityPanel()
+    {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
+        // Lazy initialization for dropdowns
+        if (!isFontSizeDropdownPopulated)
+        {
+            PopulateFontSizeDropdown();
+            isFontSizeDropdownPopulated = true;
+        }
+
+        SoundPanel.SetActive(false);
+        GraphicsPanel.SetActive(false);
+        GameplayPanel.SetActive(false);
+        AccessibilityPanel.SetActive(true);
+    }
+
+    // Show Graphics Panel and hide others
+    public void ShowGraphicsPanel()
+    {
+        buttonContainer.SetActive(false);
+        applyButton.SetActive(true); // Show the Apply button
+
+        // Lazy initialization for dropdowns
+        if (!isResolutionDropdownPopulated)
+        {
+            PopulateResolutionDropdown();
+            isResolutionDropdownPopulated = true;
+        }
+        if (!isQualityDropdownPopulated)
+        {
+            PopulateQualityDropdown();
+            isQualityDropdownPopulated = true;
+        }
+        if (!isAspectRatioDropdownPopulated)
+        {
+            PopulateAspectRatioDropdown();
+            isAspectRatioDropdownPopulated = true;
+        }
+
+        SoundPanel.SetActive(false);
+        GraphicsPanel.SetActive(true);
+        GameplayPanel.SetActive(false);
+        AccessibilityPanel.SetActive(false);
     }
 }

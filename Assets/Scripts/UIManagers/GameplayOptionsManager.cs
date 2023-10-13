@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using System;
 
 public class GameplayOptionsManager : Singleton<GameplayOptionsManager>
 {
@@ -13,25 +14,6 @@ public class GameplayOptionsManager : Singleton<GameplayOptionsManager>
         Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
         autoSaveToggle.isOn = (bool)settings["AutoSave"];
         difficultyDropdown.value = (int)settings["Difficulty"];
-    }
-
-    // Show Gameplay Panel and hide others
-    public void ShowGameplayPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
-
-        // Lazy initialization for dropdowns
-        if (!isDifficultyDropdownPopulated)
-        {
-            PopulateDifficultyDropdown();
-            isDifficultyDropdownPopulated = true;
-        }
-
-        SoundPanel.SetActive(false);
-        GraphicsPanel.SetActive(false);
-        GameplayPanel.SetActive(true);
-        AccessibilityPanel.SetActive(false);
     }
 
     // Function for Difficulty
@@ -59,14 +41,8 @@ public class GameplayOptionsManager : Singleton<GameplayOptionsManager>
         difficultyDropdown.AddOptions(options);
     }
 
-    // Populate Font Size Dropdown
-    private void PopulateFontSizeDropdown()
+    internal void SaveOptions()
     {
-        // Define font sizes
-        List<string> options = new List<string> { "Small", "Medium", "Large" };
-
-        // Clear and add new options to the dropdown
-        fontSizeDropdown.ClearOptions();
-        fontSizeDropdown.AddOptions(options);
+        
     }
 }

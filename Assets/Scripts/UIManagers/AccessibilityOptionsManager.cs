@@ -15,24 +15,7 @@ public class AccessibilityOptionsManager : Singleton<AccessibilityOptionsManager
         colorblindModeToggle.isOn = (bool)settings["ColorblindMode"];
     }
 
-    // Show Accessibility Panel and hide others
-    public void ShowAccessibilityPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
 
-        // Lazy initialization for dropdowns
-        if (!isFontSizeDropdownPopulated)
-        {
-            PopulateFontSizeDropdown();
-            isFontSizeDropdownPopulated = true;
-        }
-
-        SoundPanel.SetActive(false);
-        GraphicsPanel.SetActive(false);
-        GameplayPanel.SetActive(false);
-        AccessibilityPanel.SetActive(true);
-    }
 
     // Function for Colorblind Mode
     public void SetColorblindMode(bool isColorblind)
@@ -46,5 +29,16 @@ public class AccessibilityOptionsManager : Singleton<AccessibilityOptionsManager
     {
         PlayerPrefs.SetInt("FontSize", fontSize);
         // Add logic to change the font size in the game
+    }
+
+    // Populate Font Size Dropdown
+    private void PopulateFontSizeDropdown()
+    {
+        // Define font sizes
+        List<string> options = new List<string> { "Small", "Medium", "Large" };
+
+        // Clear and add new options to the dropdown
+        fontSizeDropdown.ClearOptions();
+        fontSizeDropdown.AddOptions(options);
     }
 }

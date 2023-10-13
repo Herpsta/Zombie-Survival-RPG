@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
+using System;
 
 public class GraphicsOptionsManager : Singleton<GraphicsOptionsManager>
 {
@@ -30,34 +31,7 @@ public class GraphicsOptionsManager : Singleton<GraphicsOptionsManager>
         fullscreenToggle.isOn = (bool)settings["Fullscreen"];
     }
 
-    // Show Graphics Panel and hide others
-    public void ShowGraphicsPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
 
-        // Lazy initialization for dropdowns
-        if (!isResolutionDropdownPopulated)
-        {
-            PopulateResolutionDropdown();
-            isResolutionDropdownPopulated = true;
-        }
-        if (!isQualityDropdownPopulated)
-        {
-            PopulateQualityDropdown();
-            isQualityDropdownPopulated = true;
-        }
-        if (!isAspectRatioDropdownPopulated)
-        {
-            PopulateAspectRatioDropdown();
-            isAspectRatioDropdownPopulated = true;
-        }
-
-        SoundPanel.SetActive(false);
-        GraphicsPanel.SetActive(true);
-        GameplayPanel.SetActive(false);
-        AccessibilityPanel.SetActive(false);
-    }
 
     public void SetQuality(int qualityIndex)
     {
@@ -128,5 +102,19 @@ public class GraphicsOptionsManager : Singleton<GraphicsOptionsManager>
         int resolution = GraphicsOptionsManager.Instance.GetResolution();
         int quality = GraphicsOptionsManager.Instance.GetQuality();
         bool fullscreen = GraphicsOptionsManager.Instance.GetFullscreen();
+    }
+
+    private int GetResolution()
+    {
+    }
+
+    private bool GetFullscreen()
+    {
+        throw new NotImplementedException();
+    }
+
+    private int GetQuality()
+    {
+        throw new NotImplementedException();
     }
 }

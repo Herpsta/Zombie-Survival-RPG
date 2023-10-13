@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using UnityEngine.Audio;
+using System;
 
 public class SoundOptionsManager : Singleton<SoundOptionsManager>
 {
@@ -16,18 +17,6 @@ public class SoundOptionsManager : Singleton<SoundOptionsManager>
         musicVolumeSlider.value = (float)settings["MusicVolume"];
         sfxVolumeSlider.value = (float)settings["SFXVolume"];
         voiceVolumeSlider.value = (float)settings["VoiceVolume"];
-    }
-
-    // Show Sound Panel and hide others
-    public void ShowSoundPanel()
-    {
-        buttonContainer.SetActive(false);
-        applyButton.SetActive(true); // Show the Apply button
-
-        SoundPanel.SetActive(true);
-        GraphicsPanel.SetActive(false);
-        GameplayPanel.SetActive(false);
-        AccessibilityPanel.SetActive(false);
     }
 
     public void SetMusicVolume(float volume)
@@ -53,5 +42,20 @@ public class SoundOptionsManager : Singleton<SoundOptionsManager>
         float musicVolume = SoundOptionsManager.Instance.GetMusicVolume();
         float sfxVolume = SoundOptionsManager.Instance.GetSFXVolume();
         float voiceVolume = SoundOptionsManager.Instance.GetVoiceVolume();
+    }
+
+    private float GetVoiceVolume()
+    {
+        return voiceVolumeSlider.value;
+    }
+
+    private float GetMusicVolume()
+    {
+        return musicVolumeSlider.value;
+    }
+
+    private float GetSFXVolume()
+    {
+        return sfxVolumeSlider.value;
     }
 }
