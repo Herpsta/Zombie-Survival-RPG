@@ -122,10 +122,7 @@ public class OptionsManager : MonoBehaviour
             isDifficultyDropdownPopulated = true;
         }
 
-        SoundPanel.SetActive(false);
-        GraphicsPanel.SetActive(false);
-        GameplayPanel.SetActive(true);
-        AccessibilityPanel.SetActive(false);
+        DoozyUIManager.Instance.ShowPanel("Options", "Gameplay");
     }
 
     // New: Generic function to add dropdown listeners
