@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 
-public class GraphicsOptionsManager : MonoBehaviour
+public class GraphicsOptionsManager : MonoBehaviour, IPanelManager
 {
     [Tooltip("Dropdown for resolution selection")]
     public TMP_Dropdown resolutionDropdown;
@@ -14,9 +14,14 @@ public class GraphicsOptionsManager : MonoBehaviour
     [Tooltip("Dropdown for aspect ratio selection")]
     public TMP_Dropdown aspectRatioDropdown;
     private Resolution[] resolutions;
+    public GameObject graphicsPanel;
 
     void Start()
     {
+        OptionsManager.Instance.RegisterPanel(this);
+
+        Load();
+
         resolutions = Screen.resolutions;
         PopulateResolutionDropdown();
         PopulateQualityDropdown();
@@ -26,8 +31,16 @@ public class GraphicsOptionsManager : MonoBehaviour
         qualityDropdown.onValueChanged.AddListener(SetQuality);
         fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
         aspectRatioDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
+    }
 
-        LoadOptions();
+    public void ShowPanel()
+    {
+        graphicsPanel.SetActive(true);
+    }
+
+    public void HidePanel()
+    {
+        graphicsPanel.SetActive(false);
     }
 
     public void SetQuality(int qualityIndex)
@@ -78,15 +91,22 @@ public class GraphicsOptionsManager : MonoBehaviour
         aspectRatioDropdown.AddOptions(options);
     }
 
-    public void SaveOptions()
+    public void Save()
     {
+        // Save the selected index of the resolutionDropdown
         PlayerPrefs.SetInt("Resolution", resolutionDropdown.value);
+
+        // Save the selected index of the qualityDropdown
         PlayerPrefs.SetInt("Quality", qualityDropdown.value);
+
+        // Save the state of the fullscreenToggle
         PlayerPrefs.SetInt("Fullscreen", fullscreenToggle.isOn ? 1 : 0);
+
+        // Commit changes to disk
         PlayerPrefs.Save();
     }
 
-    public void LoadOptions()
+    public void Load()
     {
         resolutionDropdown.value = PlayerPrefs.GetInt("Resolution", 0);
         qualityDropdown.value = PlayerPrefs.GetInt("Quality", 0);

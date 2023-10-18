@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.Audio;
 using System;
 
-public class SoundOptionsManager : MonoBehaviour
+public class SoundOptionsManager : MonoBehaviour, IPanelManager
 {
     [Tooltip("Audio mixer for controlling volumes")]
     public AudioMixer audioMixer;
@@ -18,18 +18,41 @@ public class SoundOptionsManager : MonoBehaviour
     [Tooltip("Slider for controlling voice volume")]
     public Slider voiceVolumeSlider;
 
+    public GameObject soundPanel;
+    public static SoundOptionsManager Instance;
+
+    private void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     void Start()
     {
-        // Load settings
-        Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
-        musicVolumeSlider.value = (float)settings["MusicVolume"];
-        sfxVolumeSlider.value = (float)settings["SFXVolume"];
-        voiceVolumeSlider.value = (float)settings["VoiceVolume"];
+        OptionsManager.Instance.RegisterPanel(this);
+
+        Load();  // Add this line
 
         // Add listeners for sliders
         musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
         sfxVolumeSlider.onValueChanged.AddListener(SetSFXVolume);
         voiceVolumeSlider.onValueChanged.AddListener(SetVoiceVolume);
+    }
+
+    public void ShowPanel()
+    {
+        soundPanel.SetActive(true);
+    }
+
+    public void HidePanel()
+    {
+        soundPanel.SetActive(false);
     }
 
     public void SetMusicVolume(float volume)
@@ -50,13 +73,26 @@ public class SoundOptionsManager : MonoBehaviour
         PlayerPrefs.SetFloat("SFX", volume);
     }
 
-    public void SaveOptions()
+    public void Save()
     {
         PlayerPrefs.SetFloat("MusicVolume", GetMusicVolume());
         PlayerPrefs.SetFloat("SFXVolume", GetSFXVolume());
         PlayerPrefs.SetFloat("VoiceVolume", GetVoiceVolume());
         PlayerPrefs.Save();
     }
+
+    public void Load()
+    {
+        // Load saved music volume and set the slider value
+        musicVolumeSlider.value = PlayerPrefs.GetFloat("MusicVolume", 0.5f); // Default to 0.5 if not found
+
+        // Load saved SFX volume and set the slider value
+        sfxVolumeSlider.value = PlayerPrefs.GetFloat("SFXVolume", 0.5f); // Default to 0.5 if not found
+
+        // Load saved voice volume and set the slider value
+        voiceVolumeSlider.value = PlayerPrefs.GetFloat("VoiceVolume", 0.5f); // Default to 0.5 if not found
+    }
+
 
     private float GetVoiceVolume()
     {

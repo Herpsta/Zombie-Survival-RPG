@@ -4,17 +4,55 @@ using System.Collections.Generic;
 using TMPro;
 using System;
 
-public class GameplayOptionsManager : Singleton<GameplayOptionsManager>
+public class GameplayOptionsManager : Singleton<GameplayOptionsManager>, IPanelManager
 {
     public Toggle autoSaveToggle;
     public TMP_Dropdown difficultyDropdown;
+    public GameObject gameplayPanel;
 
-    void Start()
+    private void Start()
     {
-        Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
-        autoSaveToggle.isOn = (bool)settings["AutoSave"];
-        difficultyDropdown.value = (int)settings["Difficulty"];
+        // Register this panel with the OptionsManager
+        OptionsManager.Instance.RegisterPanel(this);
+
+        Load();  // Add this line
+
+        // Add listeners to UI elements
+        autoSaveToggle.onValueChanged.AddListener(SetAutoSave);
+        difficultyDropdown.onValueChanged.AddListener(SetDifficulty);
     }
+
+    public void ShowPanel()
+    {
+        gameplayPanel.SetActive(true);
+    }
+
+    public void HidePanel()
+    {
+        gameplayPanel.SetActive(false);
+    }
+
+    public void Save()
+    {
+        // Save the state of the autoSaveToggle
+        PlayerPrefs.SetInt("AutoSave", autoSaveToggle.isOn ? 1 : 0);
+
+        // Save the value of the difficultyDropdown
+        PlayerPrefs.SetInt("Difficulty", difficultyDropdown.value);
+
+        // Commit changes to disk
+        PlayerPrefs.Save();
+    }
+
+    public void Load()
+    {
+        // Load saved auto-save state and set the toggle
+        autoSaveToggle.isOn = PlayerPrefs.GetInt("AutoSave", 0) == 1; // Default to off (0) if not found
+
+        // Load saved difficulty level and set the dropdown value
+        difficultyDropdown.value = PlayerPrefs.GetInt("Difficulty", 0); // Default to the first option (0) if not found
+    }
+
 
     // Function for Difficulty
     public void SetDifficulty(int difficultyLevel)
@@ -39,10 +77,5 @@ public class GameplayOptionsManager : Singleton<GameplayOptionsManager>
         // Clear and add new options to the dropdown
         difficultyDropdown.ClearOptions();
         difficultyDropdown.AddOptions(options);
-    }
-
-    internal void SaveOptions()
-    {
-        
     }
 }

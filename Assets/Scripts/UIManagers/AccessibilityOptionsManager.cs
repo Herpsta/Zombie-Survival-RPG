@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 
-public class AccessibilityOptionsManager : MonoBehaviour
+public class AccessibilityOptionsManager : MonoBehaviour, IPanelManager
 {
     [Tooltip("Dropdown for font size selection")]
     public TMP_Dropdown fontSizeDropdown;
@@ -23,23 +23,13 @@ public class AccessibilityOptionsManager : MonoBehaviour
     [Tooltip("Toggle for text-to-speech")]
     public Toggle textToSpeechToggle;
 
+    public GameObject accessibilityPanel;
+
     private void Start()
     {
-        // Load settings
-        int fontSize = PlayerPrefs.GetInt("FontSize", 0);
-        bool isColorblind = PlayerPrefs.GetInt("IsColorblind", 0) == 1;
-        bool isHighContrast = PlayerPrefs.GetInt("IsHighContrast", 0) == 1;
-        bool isSubtitles = PlayerPrefs.GetInt("IsSubtitles", 0) == 1;
-        bool isTextToSpeech = PlayerPrefs.GetInt("IsTextToSpeech", 0) == 1;
-        int aspectRatio = PlayerPrefs.GetInt("AspectRatio", 0);
-
-        // Set settings
-        SetFontSize(fontSize);
-        SetColorblindMode(isColorblind);
-        SetHighContrastMode(isHighContrast);
-        SetSubtitles(isSubtitles);
-        SetTextToSpeech(isTextToSpeech);
-        SetAspectRatio(aspectRatio);
+        OptionsManager.Instance.RegisterPanel(this);
+        Load();  // Load settings
+        OptionsManager.Instance.RegisterPanel(this);
 
         // Populate dropdowns
         PopulateFontSizeDropdown();
@@ -51,6 +41,42 @@ public class AccessibilityOptionsManager : MonoBehaviour
         subtitlesToggle.onValueChanged.AddListener(SetSubtitles);
         textToSpeechToggle.onValueChanged.AddListener(SetTextToSpeech);
     }
+
+    public void ShowPanel()
+    {
+        accessibilityPanel.SetActive(true);
+    }
+
+    public void HidePanel()
+    {
+        accessibilityPanel.SetActive(false);
+    }
+
+    public void Save()
+    {
+        // Save settings to PlayerPrefs
+        PlayerPrefs.SetInt("FontSize", fontSizeDropdown.value);
+        PlayerPrefs.SetInt("IsColorblind", colorblindModeToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("IsHighContrast", highContrastModeToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("IsSubtitles", subtitlesToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("IsTextToSpeech", textToSpeechToggle.isOn ? 1 : 0);
+        PlayerPrefs.SetInt("AspectRatio", aspectRatioDropdown.value);
+
+        // Commit changes to disk
+        PlayerPrefs.Save();
+    }
+
+    public void Load()
+    {
+        // Load settings from PlayerPrefs
+        fontSizeDropdown.value = PlayerPrefs.GetInt("FontSize", 0);
+        colorblindModeToggle.isOn = PlayerPrefs.GetInt("IsColorblind", 0) == 1;
+        highContrastModeToggle.isOn = PlayerPrefs.GetInt("IsHighContrast", 0) == 1;
+        subtitlesToggle.isOn = PlayerPrefs.GetInt("IsSubtitles", 0) == 1;
+        textToSpeechToggle.isOn = PlayerPrefs.GetInt("IsTextToSpeech", 0) == 1;
+        aspectRatioDropdown.value = PlayerPrefs.GetInt("AspectRatio", 0);
+    }
+
 
     public void SetColorblindMode(bool isColorblind)
     {

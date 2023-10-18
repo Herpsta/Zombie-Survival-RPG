@@ -1,5 +1,5 @@
 using UnityEngine;
-using FMODUnity;  // Assuming FMODUnity is the correct namespace
+using FMODUnity;
 
 public class ApplyButtonController : MonoBehaviour
 {
@@ -21,7 +21,7 @@ public class ApplyButtonController : MonoBehaviour
 
     public void OnApplyButtonClicked()
     {
-        OptionsManager.Instance.ApplySettings();
+        OptionsManager.Instance.Save();
         settingsChanged = false;
         // Disable the button after applying settings
         DisableButton();
