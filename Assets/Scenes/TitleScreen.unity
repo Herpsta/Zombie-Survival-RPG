@@ -1276,6 +1276,10 @@ PrefabInstance:
       propertyPath: m_text
       value: Pussy!
       objectReference: {fileID: 0}
+    - target: {fileID: 6735066420032316785, guid: 9ece1467f76eef24399e52480152cf60, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7106689622497450164, guid: 9ece1467f76eef24399e52480152cf60, type: 3}
       propertyPath: m_LocalScale.x
       value: 2
