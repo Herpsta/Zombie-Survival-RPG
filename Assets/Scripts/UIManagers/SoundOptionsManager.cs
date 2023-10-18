@@ -4,19 +4,32 @@ using System.Collections.Generic;
 using UnityEngine.Audio;
 using System;
 
-public class SoundOptionsManager : Singleton<SoundOptionsManager>
+public class SoundOptionsManager : MonoBehaviour
 {
+    [Tooltip("Audio mixer for controlling volumes")]
     public AudioMixer audioMixer;
+
+    [Tooltip("Slider for controlling music volume")]
     public Slider musicVolumeSlider;
+
+    [Tooltip("Slider for controlling SFX volume")]
     public Slider sfxVolumeSlider;
+
+    [Tooltip("Slider for controlling voice volume")]
     public Slider voiceVolumeSlider;
 
     void Start()
     {
+        // Load settings
         Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
         musicVolumeSlider.value = (float)settings["MusicVolume"];
         sfxVolumeSlider.value = (float)settings["SFXVolume"];
         voiceVolumeSlider.value = (float)settings["VoiceVolume"];
+
+        // Add listeners for sliders
+        musicVolumeSlider.onValueChanged.AddListener(SetMusicVolume);
+        sfxVolumeSlider.onValueChanged.AddListener(SetSFXVolume);
+        voiceVolumeSlider.onValueChanged.AddListener(SetVoiceVolume);
     }
 
     public void SetMusicVolume(float volume)
@@ -39,9 +52,10 @@ public class SoundOptionsManager : Singleton<SoundOptionsManager>
 
     public void SaveOptions()
     {
-        float musicVolume = SoundOptionsManager.Instance.GetMusicVolume();
-        float sfxVolume = SoundOptionsManager.Instance.GetSFXVolume();
-        float voiceVolume = SoundOptionsManager.Instance.GetVoiceVolume();
+        PlayerPrefs.SetFloat("MusicVolume", GetMusicVolume());
+        PlayerPrefs.SetFloat("SFXVolume", GetSFXVolume());
+        PlayerPrefs.SetFloat("VoiceVolume", GetVoiceVolume());
+        PlayerPrefs.Save();
     }
 
     private float GetVoiceVolume()

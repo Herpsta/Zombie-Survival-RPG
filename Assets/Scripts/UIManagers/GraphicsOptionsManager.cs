@@ -2,36 +2,33 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
-using System;
 
-public class GraphicsOptionsManager : Singleton<GraphicsOptionsManager>
+public class GraphicsOptionsManager : MonoBehaviour
 {
+    [Tooltip("Dropdown for resolution selection")]
     public TMP_Dropdown resolutionDropdown;
+    [Tooltip("Dropdown for quality selection")]
     public TMP_Dropdown qualityDropdown;
+    [Tooltip("Toggle for fullscreen mode")]
     public Toggle fullscreenToggle;
+    [Tooltip("Dropdown for aspect ratio selection")]
     public TMP_Dropdown aspectRatioDropdown;
     private Resolution[] resolutions;
 
     void Start()
     {
-        // Populate the resolution dropdown
         resolutions = Screen.resolutions;
-        List<string> options = new List<string>();
-        foreach (Resolution res in resolutions)
-        {
-            string option = res.width + " x " + res.height;
-            options.Add(option);
-        }
-        resolutionDropdown.ClearOptions();
-        resolutionDropdown.AddOptions(options);
+        PopulateResolutionDropdown();
+        PopulateQualityDropdown();
+        PopulateAspectRatioDropdown();
 
-        Dictionary<string, object> settings = SettingsManager.Instance.LoadOptions();
-        resolutionDropdown.value = (int)settings["Resolution"];
-        qualityDropdown.value = (int)settings["Quality"];
-        fullscreenToggle.isOn = (bool)settings["Fullscreen"];
+        resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
+        qualityDropdown.onValueChanged.AddListener(SetQuality);
+        fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
+        aspectRatioDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
+
+        LoadOptions();
     }
-
-
 
     public void SetQuality(int qualityIndex)
     {
@@ -47,7 +44,6 @@ public class GraphicsOptionsManager : Singleton<GraphicsOptionsManager>
 
     public void ChangeResolution()
     {
-        float selectedAspectRatio = float.Parse(aspectRatioDropdown.options[aspectRatioDropdown.value].text);
         string selectedResolution = resolutionDropdown.options[resolutionDropdown.value].text;
         string[] dimensions = selectedResolution.Split('x');
         int width = int.Parse(dimensions[0]);
@@ -55,66 +51,45 @@ public class GraphicsOptionsManager : Singleton<GraphicsOptionsManager>
         Screen.SetResolution(width, height, Screen.fullScreen);
     }
 
-    // Populate Resolution Dropdown
     private void PopulateResolutionDropdown()
     {
-        // Get available screen resolutions
-        Resolution[] resolutions = Screen.resolutions;
         List<string> options = new List<string>();
-
-        // Loop through and add resolutions to the dropdown
         foreach (Resolution res in resolutions)
         {
             string option = res.width + " x " + res.height;
             options.Add(option);
         }
-
-        // Clear and add new options to the dropdown
         resolutionDropdown.ClearOptions();
         resolutionDropdown.AddOptions(options);
     }
 
-    // Populate Quality Dropdown
     private void PopulateQualityDropdown()
     {
-        // Get quality settings names
         string[] qualityNames = QualitySettings.names;
         List<string> options = new List<string>(qualityNames);
-
-        // Clear and add new options to the dropdown
         qualityDropdown.ClearOptions();
         qualityDropdown.AddOptions(options);
     }
 
-    // Populate Aspect Ratio Dropdown
     private void PopulateAspectRatioDropdown()
     {
-        // Define common aspect ratios
-        List<string> options = new List<string> { "16:9", "16:10", "4:3", "3:2" };
-
-        // Clear and add new options to the dropdown
+        List<string> options = new List<string> { "16:9", "16:10", "4:3", "3:2", "5:4", "1:1", "21:9", "32:9" };
         aspectRatioDropdown.ClearOptions();
         aspectRatioDropdown.AddOptions(options);
     }
 
     public void SaveOptions()
     {
-        int resolution = GraphicsOptionsManager.Instance.GetResolution();
-        int quality = GraphicsOptionsManager.Instance.GetQuality();
-        bool fullscreen = GraphicsOptionsManager.Instance.GetFullscreen();
+        PlayerPrefs.SetInt("Resolution", resolutionDropdown.value);
+        PlayerPrefs.SetInt("Quality", qualityDropdown.value);
+        PlayerPrefs.SetInt("Fullscreen", fullscreenToggle.isOn ? 1 : 0);
+        PlayerPrefs.Save();
     }
 
-    private int GetResolution()
+    public void LoadOptions()
     {
-    }
-
-    private bool GetFullscreen()
-    {
-        throw new NotImplementedException();
-    }
-
-    private int GetQuality()
-    {
-        throw new NotImplementedException();
+        resolutionDropdown.value = PlayerPrefs.GetInt("Resolution", 0);
+        qualityDropdown.value = PlayerPrefs.GetInt("Quality", 0);
+        fullscreenToggle.isOn = PlayerPrefs.GetInt("Fullscreen", 0) == 1;
     }
 }

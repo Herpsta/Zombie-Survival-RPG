@@ -38,7 +38,16 @@ public class OptionsManager : MonoBehaviour
     private bool isFontSizeDropdownPopulated = false;
 
     public static OptionsManager Instance;
-
+    private float musicVolume;
+    private float sfxVolume;
+    private float voiceVolume;
+    private int resolution;
+    private int quality;
+    private bool fullscreen;
+    private bool autoSave;
+    private int difficulty;
+    private int fontSize;
+    private bool colorblindMode;
 
     private void Start()
     {
@@ -51,22 +60,9 @@ public class OptionsManager : MonoBehaviour
         GameplayPanel.SetActive(false);
         AccessibilityPanel.SetActive(false);
 
-        // Add listeners for UI elements
-        AddDropdownListener(resolutionDropdown, delegate { ChangeResolution(); }, "resolutionDropdown is null");
-        AddDropdownListener(qualityDropdown, delegate { SetQuality(qualityDropdown.value); }, "qualityDropdown is null");
-        AddDropdownListener(aspectRatioDropdown, delegate { ChangeResolution(); }, "aspectRatioDropdown is null");
         AddDropdownListener(difficultyDropdown, delegate { SetDifficulty(difficultyDropdown.value); }, "difficultyDropdown is null");
-        AddDropdownListener(fontSizeDropdown, delegate { SetFontSize(fontSizeDropdown.value); }, "fontSizeDropdown is null");
-
-        // New: Add listeners for sliders
-        AddSliderListener(musicVolumeSlider, SetMusicVolume, "musicVolumeSlider is null");
-        AddSliderListener(sfxVolumeSlider, SetSFXVolume, "sfxVolumeSlider is null");
-        AddSliderListener(voiceVolumeSlider, SetVoiceVolume, "voiceVolumeSlider is null");
-
-        // New: Add listeners for toggles
-        AddToggleListener(fullscreenToggle, SetFullscreen, "fullscreenToggle is null");
         AddToggleListener(autoSaveToggle, SetAutoSave, "autoSaveToggle is null");
-        AddToggleListener(colorblindModeToggle, SetColorblindMode, "colorblindModeToggle is null");
+
 
         // Set text descriptions
         if (soundDescription != null)
@@ -117,15 +113,6 @@ public class OptionsManager : MonoBehaviour
     {
         buttonContainer.SetActive(false);
         applyButton.SetActive(true); // Show the Apply button
-
-        // Lazy initialization for dropdowns
-        if (!isDifficultyDropdownPopulated)
-        {
-            PopulateDifficultyDropdown();
-            isDifficultyDropdownPopulated = true;
-        }
-
-        DoozyUIManager.Instance.ShowPanel("Options", "Gameplay");
     }
 
     // New: Generic function to add dropdown listeners
@@ -195,13 +182,6 @@ public class OptionsManager : MonoBehaviour
         buttonContainer.SetActive(false);
         applyButton.SetActive(true); // Show the Apply button
 
-        // Lazy initialization for dropdowns
-        if (!isFontSizeDropdownPopulated)
-        {
-            PopulateFontSizeDropdown();
-            isFontSizeDropdownPopulated = true;
-        }
-
         SoundPanel.SetActive(false);
         GraphicsPanel.SetActive(false);
         GameplayPanel.SetActive(false);
@@ -213,23 +193,6 @@ public class OptionsManager : MonoBehaviour
     {
         buttonContainer.SetActive(false);
         applyButton.SetActive(true); // Show the Apply button
-
-        // Lazy initialization for dropdowns
-        if (!isResolutionDropdownPopulated)
-        {
-            PopulateResolutionDropdown();
-            isResolutionDropdownPopulated = true;
-        }
-        if (!isQualityDropdownPopulated)
-        {
-            PopulateQualityDropdown();
-            isQualityDropdownPopulated = true;
-        }
-        if (!isAspectRatioDropdownPopulated)
-        {
-            PopulateAspectRatioDropdown();
-            isAspectRatioDropdownPopulated = true;
-        }
 
         SoundPanel.SetActive(false);
         GraphicsPanel.SetActive(true);

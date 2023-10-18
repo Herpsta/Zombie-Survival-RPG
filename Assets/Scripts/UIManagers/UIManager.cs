@@ -40,15 +40,4 @@ public class UIManager : MonoBehaviour
             panels[panelName].SetActive(false);
         }
     }
-
-    // Your custom code for saving and loading options
-    public void SaveOptions()
-    {
-        // Your save logic here
-    }
-
-    public void LoadOptions()
-    {
-        // Your load logic here
-    }
 }

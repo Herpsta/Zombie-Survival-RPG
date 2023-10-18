@@ -43,4 +43,5 @@ public class MainGameLoop : MonoBehaviour
     {
         healthPotion
     };
+    }
 }
