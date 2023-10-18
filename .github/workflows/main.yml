@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'Releases/*'
 
 jobs:
   build:
@@ -15,10 +17,12 @@ jobs:
         fetch-depth: 0  # Fetches all history for all branches and tags
         lfs: true
 
-    - name: Extract version number from .7z file
+    - name: Extract version and set environment variable
       run: |
-        VERSION=$(ls ./Releases/*.7z | grep -o 'v[0-9]\+\.[0-9]\+\.[0-9]\+')
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        $files = Get-ChildItem -Path ./Releases/*.7z
+        $version = $files | ForEach-Object { $_.Name -match "v(\d+\.\d+\.\d+)" | Out-Null; $matches[1] }
+        echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+      shell: pwsh
 
     - name: Delete existing tag
       run: |
@@ -38,6 +42,10 @@ jobs:
         body: 'Description of the release'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Run Unity Tests
+      run: |
+        # Add your Unity test commands here
 
     - name: Log error
       if: failure()
