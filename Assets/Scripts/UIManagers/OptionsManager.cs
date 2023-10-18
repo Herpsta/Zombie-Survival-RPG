@@ -37,6 +37,9 @@ public class OptionsManager : MonoBehaviour
     private bool isDifficultyDropdownPopulated = false;
     private bool isFontSizeDropdownPopulated = false;
 
+    public static OptionsManager Instance;
+
+
     private void Start()
     {
         // Load saved options

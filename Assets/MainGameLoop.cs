@@ -14,7 +14,6 @@ public class MainGameLoop : MonoBehaviour
     {
         InitializePlayer();
         InitializeInventory();
-        InitializeUI();
     }
 
     void InitializePlayer()
@@ -44,13 +43,4 @@ public class MainGameLoop : MonoBehaviour
     {
         healthPotion
     };
-    }
-    public SingletonUIManager uiManager;
-
-    void InitializeUI()
-    {
-        uiManager.UpdateHealthBar(player.Health.CurrentValue);
-    }
-
-
 }
