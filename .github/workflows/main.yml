@@ -18,32 +18,35 @@ jobs:
         fetch-depth: 0  # Fetches all history for all branches and tags
         lfs: true  # Fetch Git LFS objects
 
-    # Check if version has changed
+    # Check if version has changed (PowerShell version)
     - name: Check if version has changed
-      id: check_version
       run: |
-        git diff --name-only HEAD^ HEAD | grep 'Assets/version.txt'
-        if [ $? -eq 0 ]; then
-          echo "Version has changed, proceeding with build."
-          echo "VERSION_CHANGED=true" >> $GITHUB_ENV
-        else
-          echo "Version has not changed, skipping build."
-          echo "VERSION_CHANGED=false" >> $GITHUB_ENV
-        fi
+        $changed = git diff --name-only HEAD^ HEAD | Select-String 'Assets/version.txt'
+        if ($null -ne $changed) {
+            Write-Host "Version has changed, proceeding with build."
+            echo "VERSION_CHANGED=true" | Out-File -Append -FilePath $env:GITHUB_ENV
+        }
+        else {
+            Write-Host "Version has not changed, skipping build."
+            echo "VERSION_CHANGED=false" | Out-File -Append -FilePath $env:GITHUB_ENV
+        }
+      shell: pwsh
 
     # Conditionally proceed with the rest of the steps
     - name: List contents of Releases directory
       if: env.VERSION_CHANGED == 'true'
       run: ls -l ./Releases
 
+    # Debugging: List contents of Releases directory
+    - name: List contents of Releases directory
+      run: ls -l ./Releases
+
     # Debugging: Print environment variables
     - name: Print environment variables
-      if: env.VERSION_CHANGED == 'true'
       run: env
 
     # Read version from file and set environment variable
     - name: Read version from file
-      if: env.VERSION_CHANGED == 'true'
       run: |
         $version = Get-Content Assets/version.txt  # Replace with the actual path
         echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
@@ -51,7 +54,6 @@ jobs:
 
     # Check if VERSION is set
     - name: Check if VERSION is set
-      if: env.VERSION_CHANGED == 'true'
       run: |
         if ($null -eq $env:VERSION -or $env:VERSION -eq "") {
           Write-Host "Error: VERSION is not set. Cannot create a GitHub release without a tag name."
@@ -59,21 +61,16 @@ jobs:
         }
       shell: pwsh
 
-    # Delete existing tag
     - name: Delete existing tag
-      if: env.VERSION_CHANGED == 'true'
       run: |
         git tag -d ${{ env.VERSION }} || true
         git push origin :refs/tags/${{ env.VERSION }} || true
 
-    # Create and push new tag
     - name: Create and push new tag
-      if: env.VERSION_CHANGED == 'true'
       run: |
         git tag -a ${{ env.VERSION }} -m "Release ${{ env.VERSION }}"
         git push origin ${{ env.VERSION }}
 
-    # Create GitHub Release
     - name: Create GitHub Release
       if: env.VERSION != ''
       uses: actions/create-release@v1
@@ -84,13 +81,10 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # Run Unity Tests
     - name: Run Unity Tests
-      if: env.VERSION_CHANGED == 'true'
       run: |
         # Add your Unity test commands here
 
-    # Log error
     - name: Log error
       if: failure()
       run: echo "An error occurred in the previous steps"
