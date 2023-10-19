@@ -78,13 +78,13 @@ jobs:
         git push origin ${{ env.VERSION }}
 
     - name: Create GitHub Release
-      id: create_release  # <-- Important: add an ID here
+      id: create_release
       if: env.VERSION != ''
       uses: actions/create-release@v1
       with:
         tag_name: ${{ env.VERSION }}
         release_name: Release ${{ env.VERSION }}
-        body: 'Description of the release'
+        body: ${{ github.event.head_commit.message }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -92,9 +92,9 @@ jobs:
       if: env.VERSION_CHANGED == 'true' && env.VERSION != ''
       uses: actions/upload-release-asset@v1
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}  # <-- Use the upload_url from create_release step
-        asset_path: ./Releases/ZombieSurvivalRPG_v${{ env.VERSION }}.7z  # Replace with the actual path to your .7z file
-        asset_name: ZombieSurvivalRPG_v${{ env.VERSION }}.7z  # Replace with the actual name of your .7z file
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Releases/ZombieSurvivalRPG_v${{ env.VERSION }}.7z
+        asset_name: ZombieSurvivalRPG_v${{ env.VERSION }}.7z
         asset_content_type: application/x-7z-compressed
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
