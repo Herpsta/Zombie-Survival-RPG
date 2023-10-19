@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class BuildGame : EditorWindow
 {
-    string version = "default_version";
+    string releaseType = "Build";
 
     [MenuItem("Build/Build All")]
     public static void ShowWindow()
@@ -17,8 +17,8 @@ public class BuildGame : EditorWindow
 
     void OnGUI()
     {
-        GUILayout.Label("Enter the version number", EditorStyles.boldLabel);
-        version = EditorGUILayout.TextField("Version", version);
+        GUILayout.Label("Select the release type", EditorStyles.boldLabel);
+        releaseType = EditorGUILayout.TextField("Release Type", releaseType);
 
         if (GUILayout.Button("Build"))
         {
@@ -28,40 +28,43 @@ public class BuildGame : EditorWindow
 
     void BuildAll()
     {
+        // Read the current version from a file
+        string versionPath = "Assets/version.txt"; // Replace with the actual path
+        string currentVersion = File.ReadAllText(versionPath);
+        string[] versionParts = currentVersion.Split('.');
+        int major = int.Parse(versionParts[0]);
+        int minor = int.Parse(versionParts[1]);
+        int patch = int.Parse(versionParts[2]);
+        int build = int.Parse(versionParts[3]);
+
+        switch (releaseType)
+        {
+            case "Major":
+                major++;
+                minor = 0;
+                patch = 0;
+                build = 0;
+                break;
+            case "Minor":
+                minor++;
+                patch = 0;
+                build = 0;
+                break;
+            case "Patch":
+                patch++;
+                build = 0;
+                break;
+            case "Build":
+                build++;
+                break;
+        }
+
+        string newVersion = $"{major}.{minor}.{patch}.{build}";
+
+        // Save the new version to a file
+        File.WriteAllText(versionPath, newVersion);
+
         System.Diagnostics.Process.Start("git", "lfs pull");
-        string buildPath = Path.Combine(Application.dataPath, "..", "Builds", $"ZombieSurvivalRPG_v{version}");
-
-        // Create directory if it doesn't exist
-        if (!Directory.Exists(buildPath))
-        {
-            Directory.CreateDirectory(buildPath);
-        }
-        else
-        {
-            // Delete existing files
-            DirectoryInfo di = new DirectoryInfo(buildPath);
-            foreach (FileInfo file in di.GetFiles())
-            {
-                file.Delete();
-            }
-            foreach (DirectoryInfo dir in di.GetDirectories())
-            {
-                dir.Delete(true);
-            }
-        }
-
-        BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
-        buildPlayerOptions.scenes = new[] { "Assets/Scenes/SplashScreen.unity", "Assets/Scenes/TitleScreen.unity", "Assets/Scenes/OptionsScreen.unity" };
-        buildPlayerOptions.locationPathName = Path.Combine(buildPath, "ZombieSurvivalRPG.exe");
-        buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
-        buildPlayerOptions.options = BuildOptions.None;
-
-        BuildReport report = BuildPipeline.BuildPlayer(buildPlayerOptions);
-
-        // Run the batch file with the version argument
-        Process process = new Process();
-        process.StartInfo.FileName = "BuildGame.bat";
-        process.StartInfo.Arguments = version;
-        process.Start();
+        string buildPath = Path.Combine(Application.dataPath, "..", "Builds", $"ZombieSurvivalRPG_v{newVersion}");
     }
 }
