@@ -78,7 +78,7 @@ jobs:
         git push origin ${{ env.VERSION }}
 
     - name: Create GitHub Release
-      id: Create Zombies!  # <-- Important: add an ID here
+      id: Create_Zombies  # <-- Important: add an ID here
       if: env.VERSION != ''
       uses: actions/create-release@v1
       with:
