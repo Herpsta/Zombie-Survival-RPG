@@ -31,8 +31,19 @@ jobs:
         $files = Get-ChildItem -Path ./Releases/*.7z
         Write-Host "Files: $files"
         if ($files -ne $null -and $files.Count -gt 0) {
-          $version = $files | ForEach-Object { $_.Name -match "v(\d+\.\d+\.\d+)" | Out-Null; $matches[1] }
-          echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $version = $null
+          $files | ForEach-Object { 
+            if ($_.Name -match "v.*?(\d+\.\d+\.\d+)") {
+              $version = $matches[1]
+              break
+            }
+          }
+          if ($version -ne $null) {
+            echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            Write-Host "No matching version found in .7z files"
+            exit 1
+          }
         } else {
           Write-Host "No .7z files found in ./Releases"
           exit 1
