@@ -18,6 +18,12 @@ jobs:
         fetch-depth: 0  # Fetches all history for all branches and tags
         lfs: true  # Fetch Git LFS objects
 
+    # Set Git user
+    - name: Set Git user
+      run: |
+        git config --global user.email "Nostalgic124@live.com"
+        git config --global user.name "Herpsta"
+
     # Check if version has changed (PowerShell version)
     - name: Check if version has changed
       run: |
