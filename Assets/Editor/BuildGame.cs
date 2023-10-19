@@ -29,7 +29,7 @@ public class BuildGame : EditorWindow
     void BuildAll()
     {
         System.Diagnostics.Process.Start("git", "lfs pull");
-        string buildPath = $"C:\\Users\\nyxar\\Zombie Survival RPG\\Builds\\ZombieSurvivalRPG_v{version}";
+        string buildPath = Path.Combine(Application.dataPath, "..", "Builds", $"ZombieSurvivalRPG_v{version}");
 
         // Create directory if it doesn't exist
         if (!Directory.Exists(buildPath))
@@ -52,7 +52,7 @@ public class BuildGame : EditorWindow
 
         BuildPlayerOptions buildPlayerOptions = new BuildPlayerOptions();
         buildPlayerOptions.scenes = new[] { "Assets/Scenes/SplashScreen.unity", "Assets/Scenes/TitleScreen.unity", "Assets/Scenes/OptionsScreen.unity" };
-        buildPlayerOptions.locationPathName = $"{buildPath}/ZombieSurvivalRPG.exe";
+        buildPlayerOptions.locationPathName = Path.Combine(buildPath, "ZombieSurvivalRPG.exe");
         buildPlayerOptions.target = BuildTarget.StandaloneWindows64;
         buildPlayerOptions.options = BuildOptions.None;
 
