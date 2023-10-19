@@ -115,6 +115,16 @@ public class BuildGame : EditorWindow
         if (summary.result == BuildResult.Succeeded)
         {
             Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
+
+            // Run the batch file after the build succeeds
+            try
+            {
+                System.Diagnostics.Process.Start("C:\\Users\\nyxar\\OneDrive\\Desktop\\Backup\\Zombie-Survival-RPG\\BuildGame.bat");
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("Failed to run batch file: " + e.Message);
+            }
         }
         else
         {
