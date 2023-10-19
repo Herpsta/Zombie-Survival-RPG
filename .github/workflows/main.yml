@@ -15,13 +15,28 @@ jobs:
       uses: actions/checkout@v2
       with: 
         fetch-depth: 0  # Fetches all history for all branches and tags
-        lfs: true
+        lfs: true  # Fetch Git LFS objects
 
+    # Debugging: List contents of Releases directory
+    - name: List contents of Releases directory
+      run: ls -l ./Releases
+
+    # Debugging: Print environment variables
+    - name: Print environment variables
+      run: env
+
+    # Extract version and set environment variable
     - name: Extract version and set environment variable
       run: |
         $files = Get-ChildItem -Path ./Releases/*.7z
-        $version = $files | ForEach-Object { $_.Name -match "v(\d+\.\d+\.\d+)" | Out-Null; $matches[1] }
-        echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+        Write-Host "Files: $files"
+        if ($files -ne $null -and $files.Count -gt 0) {
+          $version = $files | ForEach-Object { $_.Name -match "v(\d+\.\d+\.\d+)" | Out-Null; $matches[1] }
+          echo "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+        } else {
+          Write-Host "No .7z files found in ./Releases"
+          exit 1
+        }
       shell: pwsh
 
     - name: Delete existing tag
