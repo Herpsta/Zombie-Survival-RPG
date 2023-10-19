@@ -87,6 +87,18 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Upload Release Asset
+      if: env.VERSION_CHANGED == 'true' && env.VERSION != ''
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./Releases/ZombieSurvivalRPG_v${{ env.VERSION }}.7z  # Dynamic path
+        asset_name: ZombieSurvivalRPG_v${{ env.VERSION }}.7z  # Dynamic name
+        asset_content_type: application/x-7z-compressed
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
     - name: Run Unity Tests
       run: |
         # Add your Unity test commands here
