@@ -6,7 +6,16 @@ using UnityEngine;
 
 public class BuildGame : EditorWindow
 {
-    string releaseType = "Build";
+    // Define an enum for the release types
+    private enum ReleaseType
+    {
+        Expansion,
+        Major,
+        Minor,
+        Patch
+    }
+
+    private ReleaseType selectedReleaseType = ReleaseType.Patch;
 
     [MenuItem("Build/Build All")]
     public static void ShowWindow()
@@ -16,8 +25,8 @@ public class BuildGame : EditorWindow
 
     void OnGUI()
     {
-        GUILayout.Label("Select the release type", EditorStyles.boldLabel);
-        releaseType = EditorGUILayout.TextField("Release Type", releaseType);
+        // Create a dropdown menu for selecting the release type
+        selectedReleaseType = (ReleaseType)EditorGUILayout.EnumPopup("Release Type", selectedReleaseType);
 
         if (GUILayout.Button("Build"))
         {
@@ -53,36 +62,36 @@ public class BuildGame : EditorWindow
             return;
         }
 
-        int major, minor, patch, build;
-        if (!int.TryParse(versionParts[0], out major) || !int.TryParse(versionParts[1], out minor) || !int.TryParse(versionParts[2], out patch) || !int.TryParse(versionParts[3], out build))
+        int expansion, major, minor, patch;
+        if (!int.TryParse(versionParts[0], out expansion) || !int.TryParse(versionParts[1], out major) || !int.TryParse(versionParts[2], out minor) || !int.TryParse(versionParts[3], out patch))
         {
             Debug.LogError("Invalid version format in version.txt file");
             return;
         }
 
-        switch (releaseType)
+        switch (selectedReleaseType)
         {
-            case "Major":
+            case ReleaseType.Expansion:
+                expansion++;
+                major = 0;
+                minor = 0;
+                patch = 0;
+                break;
+            case ReleaseType.Major:
                 major++;
                 minor = 0;
                 patch = 0;
-                build = 0;
                 break;
-            case "Minor":
+            case ReleaseType.Minor:
                 minor++;
                 patch = 0;
-                build = 0;
                 break;
-            case "Patch":
+            case ReleaseType.Patch:
                 patch++;
-                build = 0;
-                break;
-            case "Build":
-                build++;
                 break;
         }
 
-        string newVersion = $"{major}.{minor}.{patch}.{build}";
+        string newVersion = $"{expansion}.{major}.{minor}.{patch}";
 
         try
         {
