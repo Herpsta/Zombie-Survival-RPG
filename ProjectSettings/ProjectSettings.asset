@@ -605,7 +605,7 @@ PlayerSettings:
     PS5: DOOZY_REACTOR;DOOZY_UIMANAGER;DOOZY_SIGNALS
     QNX: DOOZY_REACTOR;DOOZY_UIMANAGER;DOOZY_SIGNALS
     Stadia: DOOZY_REACTOR;DOOZY_UIMANAGER;DOOZY_SIGNALS
-    Standalone: DOOZY_REACTOR;DOOZY_UIMANAGER;DOOZY_SIGNALS
+    Standalone: 
     VisionOS: DOOZY_REACTOR;DOOZY_UIMANAGER;DOOZY_SIGNALS
     WebGL: DOOZY_REACTOR;DOOZY_UIMANAGER;DOOZY_SIGNALS
     Windows Store Apps: DOOZY_REACTOR;DOOZY_UIMANAGER;DOOZY_SIGNALS
@@ -716,7 +716,7 @@ PlayerSettings:
   hmiLogStartupTiming: 0
   hmiCpuConfiguration: 
   apiCompatibilityLevel: 6
-  activeInputHandler: 2
+  activeInputHandler: 1
   windowsGamepadBackendHint: 0
   cloudProjectId: 
   framebufferDepthMemorylessMode: 0
