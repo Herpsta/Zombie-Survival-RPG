@@ -1,34 +1,38 @@
 using System;
 using System.Collections.Generic;
-using ZGCore;
+using UnityEngine;
 
 namespace ZGEntities
-{    
-    public class GameEntity
+{
+    public class GameEntity : MonoBehaviour
     {
-        public Stat Health { get; set; }
-        public Stat Hunger { get; set; }
-        public Stat Oxygen { get; set; }
-        public Stat Temperature { get; set; }
-        public Stat Stamina { get; set; }
-        public Stat Speed { get; set; }
-        public float LocationX { get; set; }
-        public float LocationY { get; set; }
-        public float LocationZ { get; set; }
+        // Expose the stats in the inspector with tooltips
+        [Tooltip("Health stat of the entity")]
+        public Stat Health;
+        [Tooltip("Hunger stat of the entity")]
+        public Stat Hunger;
+        [Tooltip("Oxygen stat of the entity")]
+        public Stat Oxygen;
+        [Tooltip("Temperature stat of the entity")]
+        public Stat Temperature;
+        [Tooltip("Stamina stat of the entity")]
+        public Stat Stamina;
+        [Tooltip("Speed stat of the entity")]
+        public Stat Speed;
 
-        public Dictionary<string, float> TempModifiers { get; set; }
+        // Unity-specific components for 3D representation
+        [Tooltip("Mesh Renderer of the entity")]
+        public MeshRenderer MeshRenderer;
+        [Tooltip("Mesh Filter of the entity")]
+        public MeshFilter MeshFilter;
+        [Tooltip("Rigidbody of the entity")]
+        public Rigidbody Rigidbody;
 
-        public GameEntity(Stat health, Stat hunger, Stat oxygen, Stat temperature, Stat stamina, Stat speed, float locationX, float locationY, float locationZ)
+        // Temporary modifiers for the stats
+        public Dictionary<string, float> TempModifiers;
+
+        private void Awake()
         {
-            Health = health;
-            Hunger = hunger;
-            Oxygen = oxygen;
-            Temperature = temperature;
-            Stamina = stamina;
-            Speed = speed;
-            LocationX = locationX;
-            LocationY = locationY;
-            LocationZ = locationZ;
             TempModifiers = new Dictionary<string, float>();
         }
 
@@ -42,46 +46,58 @@ namespace ZGEntities
             TempModifiers.Remove(statName);
         }
 
-        public virtual void TakeDamage(float damage)
+        public void TakeDamage(float damage)
         {
             Health.CurrentValue -= damage;
         }
 
-        public virtual void PerformAction(float staminaCost)
+        public void PerformAction(float staminaCost)
         {
             Stamina.CurrentValue -= staminaCost;
         }
 
-        public virtual void Move(float dx, float dy, float dz)
+        public void Move(Vector3 direction)
         {
-            LocationX += dx;
-            LocationY += dy;
-            LocationZ += dz;
+            // Use Rigidbody to move the entity
+            Rigidbody.MovePosition(transform.position + direction);
         }
 
         public void ReplenishHealth(float amount)
         {
-            Health.CurrentValue = Math.Min(Health.CurrentValue + amount, Health.MaxValue);
+            Health.CurrentValue = Mathf.Min(Health.CurrentValue + amount, Health.MaxValue);
         }
 
         public void ReplenishHunger(float amount)
         {
-            Hunger.CurrentValue = Math.Min(Hunger.CurrentValue + amount, Hunger.MaxValue);
+            Hunger.CurrentValue = Mathf.Min(Hunger.CurrentValue + amount, Hunger.MaxValue);
         }
 
         public void ReplenishOxygen(float amount)
         {
-            Oxygen.CurrentValue = Math.Min(Oxygen.CurrentValue + amount, Oxygen.MaxValue);
+            Oxygen.CurrentValue = Mathf.Min(Oxygen.CurrentValue + amount, Oxygen.MaxValue);
         }
 
         public void ReplenishTemperature(float amount)
         {
-            Temperature.CurrentValue = Math.Min(Temperature.CurrentValue + amount, Temperature.MaxValue);
+            Temperature.CurrentValue = Mathf.Min(Temperature.CurrentValue + amount, Temperature.MaxValue);
         }
 
         public void ReplenishStamina(float amount)
         {
-            Stamina.CurrentValue = Math.Min(Stamina.CurrentValue + amount, Stamina.MaxValue);
+            Stamina.CurrentValue = Mathf.Min(Stamina.CurrentValue + amount, Stamina.MaxValue);
+        }
+
+        // TODO: Implement logic for entity interactions like attack, defend, etc.
+        public void Attack(GameEntity target)
+        {
+            // Subtract the attack power from the target's health
+            target.TakeDamage(Speed.CurrentValue);
+        }
+
+        public void Defend(float defendValue)
+        {
+            // Increase the health by the defend value
+            ReplenishHealth(defendValue);
         }
     }
 }
