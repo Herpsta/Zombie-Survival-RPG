@@ -37,9 +37,10 @@ public class PlayerInputHandler : MonoBehaviour
         {
             if (action == null)
             {
-                Debug.LogError("Action not found: " + action.name);
+                Debug.LogError("An action is not found.");
             }
         }
+
     }
 
     void OnEnable()
