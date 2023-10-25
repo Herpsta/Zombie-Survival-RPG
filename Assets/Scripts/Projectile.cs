@@ -8,7 +8,27 @@ public class Projectile : MonoBehaviour
     [Tooltip("Damage inflicted by the projectile")]
     public int damage = 10;
 
+    [Tooltip("Time after which the projectile will be destroyed")]
+    public float expirationTime = 5f;
+
+    [Tooltip("Type of the projectile")]
+    public ProjectileType projectileType;
+
     private Vector3 direction;
+
+    // Enum to define different types of projectiles
+    public enum ProjectileType
+    {
+        Normal,
+        Explosive,
+        Piercing
+    }
+
+    void Start()
+    {
+        // TODO: Add logic for projectile expiration time.
+        Destroy(gameObject, expirationTime);
+    }
 
     void Update()
     {
@@ -32,7 +52,19 @@ public class Projectile : MonoBehaviour
             // The projectile should not deal damage if its damage is zero
             if (damage != 0)
             {
-                health.TakeDamage(damage);
+                // TODO: Implement different types of projectiles (e.g., explosive, piercing).
+                switch (projectileType)
+                {
+                    case ProjectileType.Normal:
+                        health.TakeDamage(damage);
+                        break;
+                    case ProjectileType.Explosive:
+                        // Implement explosive damage logic here
+                        break;
+                    case ProjectileType.Piercing:
+                        // Implement piercing damage logic here
+                        break;
+                }
             }
 
             // The projectile should destroy itself if it hits an object that has a Health component

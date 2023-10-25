@@ -16,14 +16,19 @@ public class PlayerMovementController : MonoBehaviour
     [Tooltip("Point from where the projectile will be spawned")]
     public Transform projectileSpawnPoint;
     [Tooltip("Block duration in seconds")]
-    public float blockDuration = 2f; // Added block duration
+    public float blockDuration = 2f;
+    [Tooltip("Block cooldown in seconds")]
+    public float blockCooldown = 5f; // Added block cooldown
 
     private PlayerInputHandler inputHandler;
     private CharacterController characterController;
     private Vector3 velocity;
-    private bool isCrouching = false;
-    private bool isBlocking = false; // Added blocking state
     private float speed;
+    private float lastBlockTime = -Mathf.Infinity; // Added last block time
+
+    // TODO: Implement a state machine for better state management.
+    private enum State { Idle, Moving, Jumping, Crouching, Attacking, Blocking }
+    private State state = State.Idle;
 
     void Awake()
     {
@@ -40,111 +45,125 @@ public class PlayerMovementController : MonoBehaviour
     {
         if (inputHandler == null || characterController == null) return;
 
-        HandleMovement();
-        HandleJumping();
-        HandleCrouching();
-        HandleAttacking();
-        HandleBlocking();
+        switch (state)
+        {
+            case State.Idle:
+            case State.Moving:
+                HandleMovement();
+                HandleJumping();
+                HandleCrouching();
+                HandleAttacking();
+                HandleBlocking();
+                break;
+            case State.Jumping:
+                HandleJumping();
+                break;
+            case State.Crouching:
+                HandleCrouching();
+                break;
+            case State.Attacking:
+                HandleAttacking();
+                break;
+            case State.Blocking:
+                HandleBlocking();
+                break;
+        }
     }
 
     private void HandleMovement()
     {
-        if (isBlocking) return; // No movement while blocking
+        if (state == State.Blocking) return;
 
         float horizontal = inputHandler.GetMoveInput().x;
         float vertical = inputHandler.GetMoveInput().y;
 
         if (inputHandler.GetSprintInputDown())
         {
-            speed *= 2;  // Double the speed if sprinting
+            speed *= 2;
         }
 
         Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
         characterController.Move(moveDirection * speed * Time.deltaTime);
 
-        // Reset speed back to original value if not sprinting
         if (!inputHandler.GetSprintInputDown())
         {
             speed = baseSpeed;
         }
+
+        state = moveDirection != Vector3.zero ? State.Moving : State.Idle;
     }
 
     private void HandleJumping()
     {
-        if (isBlocking) return; // No jumping while blocking
+        if (state == State.Blocking) return;
 
         if (characterController.isGrounded)
         {
-            velocity.y = -2f;  // Reset velocity when grounded
+            velocity.y = -2f;
             if (inputHandler.GetJumpInputDown())
             {
-                velocity.y = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);  // Jumping logic
+                velocity.y = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
+                state = State.Jumping;
             }
         }
 
         velocity.y += Physics.gravity.y * Time.deltaTime;
-        characterController.Move(velocity * Time.deltaTime);  // Apply gravity
+        characterController.Move(velocity * Time.deltaTime);
     }
 
     private void HandleCrouching()
     {
-        if (isBlocking) return; // No crouching while blocking
+        if (state == State.Blocking) return;
 
         if (inputHandler.GetCrouchInputDown())
         {
-            isCrouching = !isCrouching;  // Toggle crouching state
-            characterController.height = isCrouching ? crouchHeight : standHeight;  // Adjust characterController height
+            characterController.height = characterController.height == standHeight ? crouchHeight : standHeight;
+            state = characterController.height == crouchHeight ? State.Crouching : State.Idle;
         }
     }
 
     private void HandleAttacking()
     {
-        if (isBlocking) return; // No attacking while blocking
+        if (state == State.Blocking) return;
 
         if (inputHandler.GetPrimaryAttackInputDown())
         {
-            // Primary Attack logic
             FireProjectile();
+            state = State.Attacking;
         }
 
         if (inputHandler.GetSecondaryAttackInputDown())
         {
-            // Secondary Attack logic
             FireProjectile(true);
+            state = State.Attacking;
         }
     }
 
     private void HandleBlocking()
     {
+        if (Time.time < lastBlockTime + blockCooldown) return; // Added block cooldown
+
         if (inputHandler.GetBlockInputDown())
         {
-            // Block logic
-            BlockAttack();
+            state = State.Blocking;
+            lastBlockTime = Time.time;
+            Invoke("EndBlock", blockDuration);
         }
     }
 
     void FireProjectile(bool isSecondary = false)
     {
-        // Instantiate a new projectile and set its direction
         GameObject projectile = Instantiate(projectilePrefab, projectileSpawnPoint.position, Quaternion.identity);
         projectile.GetComponent<Projectile>().SetDirection(transform.forward);
 
         if (isSecondary)
         {
-            // If it's a secondary attack, maybe the projectile is faster or more powerful
-            projectile.GetComponent<Projectile>().speed *= 2;  // For instance, doubling the speed of the projectile for secondary attack
+            projectile.GetComponent<Projectile>().speed *= 2;
         }
-    }
-
-    void BlockAttack()
-    {
-        // Block logic
-        isBlocking = true;
-        Invoke("EndBlock", blockDuration); // End block after blockDuration seconds
     }
 
     void EndBlock()
     {
-        isBlocking = false;
+        state = State.Idle;
     }
 }

@@ -5,6 +5,9 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Speed of the player")]
     public float speed = 5f;
 
+    [Tooltip("Sprint speed of the player")]
+    public float sprintSpeed = 10f;
+
     [Tooltip("Jump height of the player")]
     public float jumpHeight = 2f;
 
@@ -14,24 +17,35 @@ public class PlayerMovement : MonoBehaviour
     [Tooltip("Stand height of the player")]
     public float standHeight = 2f;
 
+    [Tooltip("Stamina of the player")]
+    public float stamina = 100f;
+
+    [Tooltip("Stamina depletion rate when sprinting")]
+    public float staminaDepletionRate = 20f;
+
     private CharacterController characterController;
     private Vector3 moveDirection;
     private bool isJumping = false;
+    private bool isSprinting = false;
+
+    // TODO: Add animator component for player animations
+    private Animator animator;
 
     void Start()
     {
         characterController = GetComponent<CharacterController>();
+        animator = GetComponent<Animator>();
     }
 
     void Update()
     {
-        // TODO: Get input from user for movement, jump and crouch
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
         bool jump = Input.GetButtonDown("Jump");
         bool crouch = Input.GetButtonDown("Crouch");
+        bool sprint = Input.GetButtonDown("Sprint");
 
-        HandleMovement(horizontal, vertical);
+        HandleMovement(horizontal, vertical, sprint);
 
         if (jump)
         {
@@ -39,13 +53,17 @@ public class PlayerMovement : MonoBehaviour
         }
 
         HandleCrouch(crouch);
+        ApplyGravity();
     }
 
-    public void HandleMovement(float horizontal, float vertical)
+    public void HandleMovement(float horizontal, float vertical, bool sprint)
     {
         moveDirection = new Vector3(horizontal, 0.0f, vertical);
-        moveDirection *= speed;
+        moveDirection *= isSprinting ? sprintSpeed : speed;
         characterController.Move(moveDirection * Time.deltaTime);
+
+        // TODO: Add animations for different player states
+        animator.SetFloat("Speed", moveDirection.magnitude);
     }
 
     public void HandleJump()
@@ -54,17 +72,38 @@ public class PlayerMovement : MonoBehaviour
         {
             isJumping = true;
             moveDirection.y = Mathf.Sqrt(jumpHeight * -2f * Physics.gravity.y);
+
+            // TODO: Add jump animation
+            animator.SetTrigger("Jump");
         }
     }
 
     public void HandleCrouch(bool isCrouching)
     {
         characterController.height = isCrouching ? crouchHeight : standHeight;
+
+        // TODO: Add crouch animation
+        animator.SetBool("Crouch", isCrouching);
+    }
+
+    public void HandleSprint(bool isSprinting)
+    {
+        if (stamina > 0)
+        {
+            this.isSprinting = isSprinting;
+            if (isSprinting)
+            {
+                stamina -= staminaDepletionRate * Time.deltaTime;
+            }
+        }
+        else
+        {
+            this.isSprinting = false;
+        }
     }
 
     private void ApplyGravity()
     {
-        // TODO: Apply gravity to the player when not grounded
         if (!characterController.isGrounded)
         {
             moveDirection.y += Physics.gravity.y * Time.deltaTime;
@@ -75,4 +114,3 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 }
-// This script now includes an Update method to handle user input for movement, jumping, and crouching. It also includes a method to apply gravity to the player when they are not grounded. The isJumping variable is used to prevent the player from jumping again while they are already in the air.

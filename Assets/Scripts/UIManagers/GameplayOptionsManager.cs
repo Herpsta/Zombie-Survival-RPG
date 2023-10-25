@@ -12,6 +12,9 @@ public class GameplayOptionsManager : MonoBehaviour
     [Tooltip("Dropdown for difficulty selection")]
     public TMP_Dropdown difficultyDropdown;
 
+    [Tooltip("Slider for camera sensitivity")]
+    public Slider cameraSensitivitySlider; // Added a slider for camera sensitivity
+
     [Tooltip("Panel for gameplay options")]
     public GameObject gameplayPanel;
 
@@ -23,6 +26,7 @@ public class GameplayOptionsManager : MonoBehaviour
         // Add listeners to UI elements
         autoSaveToggle.onValueChanged.AddListener(SetAutoSave);
         difficultyDropdown.onValueChanged.AddListener(SetDifficulty);
+        cameraSensitivitySlider.onValueChanged.AddListener(SetCameraSensitivity); // Added listener for camera sensitivity slider
 
         // Populate the difficulty dropdown
         PopulateDifficultyDropdown();
@@ -46,6 +50,9 @@ public class GameplayOptionsManager : MonoBehaviour
         // Save the value of the difficultyDropdown
         PlayerPrefs.SetInt("Difficulty", difficultyDropdown.value);
 
+        // Save the value of the cameraSensitivitySlider
+        PlayerPrefs.SetFloat("CameraSensitivity", cameraSensitivitySlider.value); // Save camera sensitivity
+
         // Commit changes to disk
         PlayerPrefs.Save();
     }
@@ -57,6 +64,9 @@ public class GameplayOptionsManager : MonoBehaviour
 
         // Load saved difficulty level and set the dropdown value
         difficultyDropdown.value = PlayerPrefs.GetInt("Difficulty", 0); // Default to the first option (0) if not found
+
+        // Load saved camera sensitivity and set the slider value
+        cameraSensitivitySlider.value = PlayerPrefs.GetFloat("CameraSensitivity", 0.5f); // Default to middle (0.5) if not found
     }
 
     // Function for Difficulty
@@ -71,6 +81,13 @@ public class GameplayOptionsManager : MonoBehaviour
     {
         PlayerPrefs.SetInt("AutoSave", autoSave ? 1 : 0);
         // TODO: Add logic to enable/disable auto-save in the game
+    }
+
+    // Function for Camera Sensitivity
+    public void SetCameraSensitivity(float sensitivity)
+    {
+        PlayerPrefs.SetFloat("CameraSensitivity", sensitivity);
+        // TODO: Add logic to adjust camera sensitivity in the game
     }
 
     // Populate Difficulty Dropdown

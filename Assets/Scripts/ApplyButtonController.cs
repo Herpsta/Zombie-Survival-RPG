@@ -46,6 +46,8 @@ public class ApplyButtonController : MonoBehaviour
         {
             // Show an error message to the user
             ShowErrorMessage("Invalid settings. Please check and try again.");
+            // Revert to previous settings if new settings are not validated
+            RevertToPreviousSettings();
         }
     }
 
@@ -74,6 +76,8 @@ public class ApplyButtonController : MonoBehaviour
         {
             // Show an error message to the user
             ShowErrorMessage("Invalid settings. Please check and try again.");
+            // Revert to previous settings if new settings are not validated
+            RevertToPreviousSettings();
         }
     }
 
@@ -102,5 +106,14 @@ public class ApplyButtonController : MonoBehaviour
     {
         // Hide the error message
         errorMessage.gameObject.SetActive(false);
+    }
+
+    // TODO: Implement a method to revert to previous settings if new settings are not validated
+    private void RevertToPreviousSettings()
+    {
+        if (previousSettings != null)
+        {
+            OptionsManager.Instance.Load(previousSettings);
+        }
     }
 }

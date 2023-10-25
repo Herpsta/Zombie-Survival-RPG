@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace ZGEntities
@@ -28,24 +27,6 @@ namespace ZGEntities
         [Tooltip("Rigidbody of the entity")]
         public Rigidbody Rigidbody;
 
-        // Temporary modifiers for the stats
-        public Dictionary<string, float> TempModifiers;
-
-        private void Awake()
-        {
-            TempModifiers = new Dictionary<string, float>();
-        }
-
-        public void ApplyTempModifier(string statName, float modifierValue)
-        {
-            TempModifiers[statName] = modifierValue;
-        }
-
-        public void RemoveTempModifier(string statName)
-        {
-            TempModifiers.Remove(statName);
-        }
-
         public void TakeDamage(float damage)
         {
             Health.CurrentValue -= damage;
@@ -59,7 +40,8 @@ namespace ZGEntities
         public void Move(Vector3 direction)
         {
             // Use Rigidbody to move the entity
-            Rigidbody.MovePosition(transform.position + direction);
+            // Multiply the direction by Time.deltaTime and the speed stat for frame-rate independent movement
+            Rigidbody.MovePosition(transform.position + direction * Time.deltaTime * Speed.CurrentValue);
         }
 
         public void ReplenishHealth(float amount)

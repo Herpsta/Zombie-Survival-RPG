@@ -1,46 +1,51 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using FMODUnity;
+using FMOD.Studio;
 
-public class FMODUIButton : MonoBehaviour
+public class FMODUIButton : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler, IPointerExitHandler
 {
     [SerializeField]
-    private string fmodEventPathClick = "event:/Events/ButtonPressed"; // FMOD Event path for click
+    [Tooltip("FMOD Event path for click")]
+    private string fmodEventPathClick = "event:/Events/ButtonPressed";
 
     [SerializeField]
-    private string fmodEventPathRollover = "event:/Events/ButtonRollover"; // FMOD Event path for rollover
+    [Tooltip("FMOD Event path for rollover")]
+    private string fmodEventPathRollover = "event:/Events/ButtonRollover";
 
-    private PointerEventData latestEventData;
+    [SerializeField]
+    [Tooltip("FMOD Event path for button exit")]
+    private string fmodEventPathExit = "event:/Events/ButtonExit"; // TODO: Add your FMOD Event path for exit
+
+    [SerializeField]
+    [Tooltip("Volume control for UI sounds")]
+    private float volume = 1f; // Default volume is 1 (max)
+
+    private EventInstance soundEvent;
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        latestEventData = eventData;
-        OnPointerEnterWrapper();
+        PlayFMODSound(fmodEventPathRollover);
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        latestEventData = eventData;
-        OnPointerClickWrapper();
-    }
-
-    public void OnPointerEnterWrapper()
-    {
-        // Play rollover sound
-        PlayFMODSound(fmodEventPathRollover);
-    }
-
-    public void OnPointerClickWrapper()
-    {
-        // Play click sound
         PlayFMODSound(fmodEventPathClick);
+    }
+
+    public void OnPointerExit(PointerEventData eventData)
+    {
+        PlayFMODSound(fmodEventPathExit); // TODO: Implement sound for when the pointer exits the button
     }
 
     private void PlayFMODSound(string eventPath)
     {
         if (!string.IsNullOrEmpty(eventPath))
         {
-            RuntimeManager.PlayOneShot(eventPath);
+            soundEvent = RuntimeManager.CreateInstance(eventPath);
+            soundEvent.setVolume(volume); // Set the volume for the sound event
+            soundEvent.start();
+            soundEvent.release();
         }
     }
 }

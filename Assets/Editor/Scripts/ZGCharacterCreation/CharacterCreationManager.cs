@@ -43,6 +43,22 @@ namespace ZGCharacterCreation
             PlayerSkills = new List<string>();
         }
 
+        // Initialize default values for player attributes
+        public void InitializeDefaultValues()
+        {
+            PlayerSex = Sex.Male;
+            PlayerGender = Gender.Male;
+            PlayerRace = Race.Human;
+            PlayerWeight = 70f;
+            PlayerHeight = 1.8f;
+            PlayerEyeColor = "Blue";
+            PlayerHairColor = "Black";
+            PlayerAge = 25;
+            StartingLocation = "City";
+            PlayerJob = Job.None;
+            PlayerSkills.Clear();
+        }
+
         public void SetPlayerSkillsBasedOnJob()
         {
             PlayerSkills.Clear();
@@ -75,7 +91,6 @@ namespace ZGCharacterCreation
             }
         }
 
-        // Save character data to PlayerPrefs
         public void SaveCharacterData()
         {
             PlayerPrefs.SetString("PlayerSex", PlayerSex.ToString());
@@ -91,7 +106,6 @@ namespace ZGCharacterCreation
             PlayerPrefs.Save();
         }
 
-        // Load character data from PlayerPrefs
         public void LoadCharacterData()
         {
             PlayerSex = (Sex)System.Enum.Parse(typeof(Sex), PlayerPrefs.GetString("PlayerSex"));
@@ -106,33 +120,29 @@ namespace ZGCharacterCreation
             PlayerSkills = new List<string>(PlayerPrefs.GetString("PlayerSkills").Split(','));
         }
 
-        // Validate player attributes
         public bool ValidatePlayerAttributes()
         {
-            // Add your validation logic here
-            // For example, check if age is within a certain range
             if (PlayerAge < 18 || PlayerAge > 100)
             {
                 return false;
             }
 
-            // Check if weight is within a certain range
             if (PlayerWeight < 30 || PlayerWeight > 200)
             {
                 return false;
             }
 
-            // Check if height is within a certain range
             if (PlayerHeight < 1.2f || PlayerHeight > 2.2f)
             {
                 return false;
             }
 
-            // Check if skills are not empty
             if (PlayerSkills.Count == 0)
             {
                 return false;
             }
+
+            // TODO: Add more complex validation logic based on the game's requirements
 
             return true;
         }
