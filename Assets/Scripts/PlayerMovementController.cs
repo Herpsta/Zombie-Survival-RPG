@@ -1,21 +1,29 @@
 using UnityEngine;
-using UnityEngine.ProBuilder;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovementController : MonoBehaviour
 {
+    [Tooltip("Base speed of the player")]
     public float baseSpeed = 5f;
-    public float speed;
+    [Tooltip("Jump height of the player")]
     public float jumpHeight = 1.5f;
+    [Tooltip("Crouch height of the player")]
     public float crouchHeight = 0.5f;
+    [Tooltip("Stand height of the player")]
     public float standHeight = 2f;
+    [Tooltip("Projectile prefab to be instantiated when attacking")]
     public GameObject projectilePrefab;
+    [Tooltip("Point from where the projectile will be spawned")]
     public Transform projectileSpawnPoint;
+    [Tooltip("Block duration in seconds")]
+    public float blockDuration = 2f; // Added block duration
 
     private PlayerInputHandler inputHandler;
     private CharacterController characterController;
     private Vector3 velocity;
     private bool isCrouching = false;
+    private bool isBlocking = false; // Added blocking state
+    private float speed;
 
     void Awake()
     {
@@ -32,6 +40,17 @@ public class PlayerMovementController : MonoBehaviour
     {
         if (inputHandler == null || characterController == null) return;
 
+        HandleMovement();
+        HandleJumping();
+        HandleCrouching();
+        HandleAttacking();
+        HandleBlocking();
+    }
+
+    private void HandleMovement()
+    {
+        if (isBlocking) return; // No movement while blocking
+
         float horizontal = inputHandler.GetMoveInput().x;
         float vertical = inputHandler.GetMoveInput().y;
 
@@ -42,6 +61,17 @@ public class PlayerMovementController : MonoBehaviour
 
         Vector3 moveDirection = transform.right * horizontal + transform.forward * vertical;
         characterController.Move(moveDirection * speed * Time.deltaTime);
+
+        // Reset speed back to original value if not sprinting
+        if (!inputHandler.GetSprintInputDown())
+        {
+            speed = baseSpeed;
+        }
+    }
+
+    private void HandleJumping()
+    {
+        if (isBlocking) return; // No jumping while blocking
 
         if (characterController.isGrounded)
         {
@@ -54,12 +84,22 @@ public class PlayerMovementController : MonoBehaviour
 
         velocity.y += Physics.gravity.y * Time.deltaTime;
         characterController.Move(velocity * Time.deltaTime);  // Apply gravity
+    }
+
+    private void HandleCrouching()
+    {
+        if (isBlocking) return; // No crouching while blocking
 
         if (inputHandler.GetCrouchInputDown())
         {
             isCrouching = !isCrouching;  // Toggle crouching state
             characterController.height = isCrouching ? crouchHeight : standHeight;  // Adjust characterController height
         }
+    }
+
+    private void HandleAttacking()
+    {
+        if (isBlocking) return; // No attacking while blocking
 
         if (inputHandler.GetPrimaryAttackInputDown())
         {
@@ -72,17 +112,14 @@ public class PlayerMovementController : MonoBehaviour
             // Secondary Attack logic
             FireProjectile(true);
         }
+    }
 
+    private void HandleBlocking()
+    {
         if (inputHandler.GetBlockInputDown())
         {
             // Block logic
             BlockAttack();
-        }
-
-        // Reset speed back to original value if not sprinting
-        if (!inputHandler.GetSprintInputDown())
-        {
-            speed = baseSpeed;
         }
     }
 
@@ -95,35 +132,19 @@ public class PlayerMovementController : MonoBehaviour
         if (isSecondary)
         {
             // If it's a secondary attack, maybe the projectile is faster or more powerful
-            projectile.GetComponent<Projectile>().speed *=
-                            2;  // For instance, doubling the speed of the projectile for secondary attack
+            projectile.GetComponent<Projectile>().speed *= 2;  // For instance, doubling the speed of the projectile for secondary attack
         }
     }
 
     void BlockAttack()
     {
-        // Assuming you have some sort of Health component with a TakeDamage method,
-        // and a boolean to check if blocking is active.
-        Health playerHealth = GetComponent<Health>();
-        bool isBlocking = true;  // You would set this based on game logic, e.g., a button press
+        // Block logic
+        isBlocking = true;
+        Invoke("EndBlock", blockDuration); // End block after blockDuration seconds
+    }
 
-        // Connect this method to wherever you process incoming damage, 
-        // e.g., a OnCollisionEnter method on a collider.
-        playerHealth.onTakeDamage += (damage) =>
-        {
-            if (isBlocking)
-            {
-                // Reduce or negate the damage
-                damage = 0;  // Negate damage completely
-            }
-
-            // Apply the (possibly reduced) damage
-            playerHealth.TakeDamage(damage);
-        };
-
-        // Play a blocking animation
-        // Assuming you have an Animator component with a Block animation.
-        Animator animator = GetComponent<Animator>();
-        animator.SetTrigger("Block");
+    void EndBlock()
+    {
+        isBlocking = false;
     }
 }

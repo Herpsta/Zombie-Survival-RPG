@@ -3,6 +3,7 @@ using FMODUnity;
 
 public class MusicController : MonoBehaviour
 {
+    [Tooltip("FMOD event path for the music")]
     public string musicEvent = "event:/Events/Music/MainMenu";  // Replace with your actual FMOD event path
 
     private FMOD.Studio.EventInstance musicInstance;
@@ -28,8 +29,7 @@ public class MusicController : MonoBehaviour
     {
         if (Instance == this)
         {
-            musicInstance = RuntimeManager.CreateInstance(musicEvent);
-            musicInstance.start();
+            PlayMusic();
         }
     }
 
@@ -37,8 +37,27 @@ public class MusicController : MonoBehaviour
     {
         if (Instance == this)
         {
-            musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
-            musicInstance.release();
+            StopMusic();
         }
     }
+
+    // Function to play music
+    public void PlayMusic()
+    {
+        // Create an instance of the music event
+        musicInstance = RuntimeManager.CreateInstance(musicEvent);
+        // Start the music event
+        musicInstance.start();
+    }
+
+    // Function to stop music
+    public void StopMusic()
+    {
+        // Stop the music event with a fade out
+        musicInstance.stop(FMOD.Studio.STOP_MODE.ALLOWFADEOUT);
+        // Release the music event instance
+        musicInstance.release();
+    }
+
+    // TODO: Add functions to control the volume, pitch, etc. of the music
 }

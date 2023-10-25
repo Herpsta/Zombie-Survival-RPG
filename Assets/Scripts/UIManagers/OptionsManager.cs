@@ -4,19 +4,29 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 
-public class OptionsManager : Singleton<OptionsManager>
+public class OptionsManager : MonoBehaviour
 {
+    [Tooltip("Container for buttons")]
     public GameObject buttonContainer;
+    [Tooltip("Apply button")]
     public GameObject applyButton;
 
+    [Tooltip("Sound settings panel")]
     public GameObject SoundPanel;
+    [Tooltip("Graphics settings panel")]
     public GameObject GraphicsPanel;
+    [Tooltip("Gameplay settings panel")]
     public GameObject GameplayPanel;
+    [Tooltip("Accessibility settings panel")]
     public GameObject AccessibilityPanel;
 
+    [Tooltip("Sound settings description")]
     public TMP_Text soundDescription;
+    [Tooltip("Graphics settings description")]
     public TMP_Text graphicsDescription;
+    [Tooltip("Gameplay settings description")]
     public TMP_Text gameplayDescription;
+    [Tooltip("Accessibility settings description")]
     public TMP_Text accessibilityDescription;
 
     private List<IPanelManager> panelManagers = new List<IPanelManager>();
@@ -57,6 +67,8 @@ public class OptionsManager : Singleton<OptionsManager>
         SetDescriptionWithCheck(graphicsDescription, "Change the resolution and quality settings.");
         SetDescriptionWithCheck(gameplayDescription, "Modify gameplay settings like difficulty.");
         SetDescriptionWithCheck(accessibilityDescription, "Customize settings for better accessibility.");
+
+        // TODO: Add calls to AddDropdownListener, AddSliderListener, and AddToggleListener here
     }
 
     private void SetDescriptionWithCheck(TMP_Text descriptionText, string description)
@@ -67,7 +79,7 @@ public class OptionsManager : Singleton<OptionsManager>
         }
         else
         {
-            Debug.LogError("desriptionText is null");
+            Debug.LogError("descriptionText is null");
         }
     }
 
@@ -76,7 +88,6 @@ public class OptionsManager : Singleton<OptionsManager>
         ShowOnlyThisPanel(panelManager);
     }
 
-    // New: Generic function to add dropdown listeners
     private void AddDropdownListener(TMP_Dropdown dropdown, UnityAction<int> action, string errorMessage)
     {
         if (dropdown != null)
@@ -89,7 +100,6 @@ public class OptionsManager : Singleton<OptionsManager>
         }
     }
 
-    // New: Generic function to add slider listeners
     private void AddSliderListener(Slider slider, UnityAction<float> action, string errorMessage)
     {
         if (slider != null)
@@ -102,7 +112,6 @@ public class OptionsManager : Singleton<OptionsManager>
         }
     }
 
-    // New: Generic function to add toggle listeners
     private void AddToggleListener(Toggle toggle, UnityAction<bool> action, string errorMessage)
     {
         if (toggle != null)
@@ -117,10 +126,11 @@ public class OptionsManager : Singleton<OptionsManager>
 
     public void Save()
     {
-        foreach (var panel in panelManagers)
-        {
-            panel.Save();
-        }
+        if (panelManagers != null)
+            foreach (var panel in panelManagers)
+            {
+                panel.Save();
+            }
     }
 
     public void Load()

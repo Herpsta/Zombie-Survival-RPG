@@ -4,22 +4,28 @@ using System.Collections.Generic;
 using TMPro;
 using System;
 
-public class GameplayOptionsManager : Singleton<GameplayOptionsManager>, IPanelManager
+public class GameplayOptionsManager : MonoBehaviour
 {
+    [Tooltip("Toggle for auto-save option")]
     public Toggle autoSaveToggle;
+
+    [Tooltip("Dropdown for difficulty selection")]
     public TMP_Dropdown difficultyDropdown;
+
+    [Tooltip("Panel for gameplay options")]
     public GameObject gameplayPanel;
 
     private void Start()
     {
-        // Register this panel with the OptionsManager
-        OptionsManager.Instance.RegisterPanel(this);
-
-        Load();  // Add this line
+        // Load saved settings
+        Load();
 
         // Add listeners to UI elements
         autoSaveToggle.onValueChanged.AddListener(SetAutoSave);
         difficultyDropdown.onValueChanged.AddListener(SetDifficulty);
+
+        // Populate the difficulty dropdown
+        PopulateDifficultyDropdown();
     }
 
     public void ShowPanel()
@@ -53,19 +59,18 @@ public class GameplayOptionsManager : Singleton<GameplayOptionsManager>, IPanelM
         difficultyDropdown.value = PlayerPrefs.GetInt("Difficulty", 0); // Default to the first option (0) if not found
     }
 
-
     // Function for Difficulty
     public void SetDifficulty(int difficultyLevel)
     {
-        PlayerPrefs.SetInt("DifficultyLevel", difficultyLevel);
-        // Add logic to set the difficulty level in the game
+        PlayerPrefs.SetInt("Difficulty", difficultyLevel);
+        // TODO: Add logic to set the difficulty level in the game
     }
 
     // Function for Auto-Save
     public void SetAutoSave(bool autoSave)
     {
         PlayerPrefs.SetInt("AutoSave", autoSave ? 1 : 0);
-        // Add logic to enable/disable auto-save in the game
+        // TODO: Add logic to enable/disable auto-save in the game
     }
 
     // Populate Difficulty Dropdown

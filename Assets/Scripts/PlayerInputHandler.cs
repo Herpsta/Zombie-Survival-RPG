@@ -40,10 +40,20 @@ public class PlayerInputHandler : MonoBehaviour
                 Debug.LogError("An action is not found.");
             }
         }
-
     }
 
     void OnEnable()
+    {
+        EnableAllActions();
+    }
+
+    void OnDisable()
+    {
+        DisableAllActions();
+    }
+
+    // Enable all actions
+    private void EnableAllActions()
     {
         movement.Enable();
         jump.Enable();
@@ -54,7 +64,8 @@ public class PlayerInputHandler : MonoBehaviour
         block.Enable();
     }
 
-    void OnDisable()
+    // Disable all actions
+    private void DisableAllActions()
     {
         movement.Disable();
         jump.Disable();

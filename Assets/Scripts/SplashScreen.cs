@@ -1,32 +1,41 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SplashScreen : MonoBehaviour
 {
+    [Tooltip("The logo to be displayed on the splash screen")]
     public Image logo;
+
+    [Tooltip("The speed of the fade in/out animation")]
     public float fadeSpeed = 1.0f;
+
+    [Tooltip("The name of the scene to load after the splash screen")]
+    public string nextSceneName = "TitleScreen";
 
     void Start()
     {
         logo.canvasRenderer.SetAlpha(0.0f);
-        fadeIn();
+        StartCoroutine(FadeInAndOut());
     }
 
-    void fadeIn()
+    IEnumerator FadeInAndOut()
     {
+        // Fade in
         logo.CrossFadeAlpha(1, fadeSpeed, false);
-        Invoke("fadeOut", fadeSpeed + 1);
-    }
+        yield return new WaitForSeconds(fadeSpeed + 1);
 
-    void fadeOut()
-    {
+        // Fade out
         logo.CrossFadeAlpha(0, fadeSpeed, false);
-        Invoke("LoadNextScene", fadeSpeed);
+        yield return new WaitForSeconds(fadeSpeed);
+
+        // Load next scene
+        LoadNextScene();
     }
 
     void LoadNextScene()
     {
-        SceneManager.LoadScene("TitleScreen");
+        SceneManager.LoadScene(nextSceneName);
     }
 }

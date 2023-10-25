@@ -2,14 +2,21 @@ using UnityEngine;
 
 public class Health : MonoBehaviour
 {
-    public int maxHealth = 100;  // TODO: Set this value as per your game's requirement
+    [Tooltip("Maximum health of the entity")]
+    public int maxHealth = 100;  // Set this value as per your game's requirement
     private int currentHealth;
-    public bool isBlocking = false;  // TODO: Control this value based on your game's mechanics
+    [Tooltip("Is the entity currently blocking damage?")]
+    public bool isBlocking = false;  // Control this value based on your game's mechanics
 
     // Define a delegate (if using non-generic pattern).
     public delegate void TakeDamageEventHandler(int damage);
     // Define an event based on the delegate (if using non-generic pattern).
     public event TakeDamageEventHandler onTakeDamage;
+
+    // Define a delegate for death event
+    public delegate void DeathEventHandler();
+    // Define an event based on the delegate
+    public event DeathEventHandler onDeath;
 
     void Start()
     {
@@ -20,7 +27,7 @@ public class Health : MonoBehaviour
     {
         if (isBlocking)
         {
-            // TODO: Adjust damage calculation based on your game's mechanics
+            // Adjust damage calculation based on your game's mechanics
             damage /= 2;
         }
 
@@ -28,10 +35,7 @@ public class Health : MonoBehaviour
         currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);  // Ensure health stays within valid range
 
         // Invoke the onTakeDamage event, if there are any subscribers
-        if (onTakeDamage != null)
-        {
-            onTakeDamage(damage);
-        }
+        onTakeDamage?.Invoke(damage);
 
         if (currentHealth <= 0)
         {
@@ -41,12 +45,22 @@ public class Health : MonoBehaviour
 
     private void Die()
     {
-        // TODO: Handle death, e.g., play animation, disable the entity, etc.
+        // Handle death, e.g., play animation, disable the entity, etc.
         Debug.Log(gameObject.name + " has died.");
+
+        // Invoke the onDeath event, if there are any subscribers
+        onDeath?.Invoke();
     }
 
     public int GetCurrentHealth()
     {
         return currentHealth;
+    }
+
+    // Function to heal the entity
+    public void Heal(int amount)
+    {
+        currentHealth += amount;
+        currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);  // Ensure health stays within valid range
     }
 }

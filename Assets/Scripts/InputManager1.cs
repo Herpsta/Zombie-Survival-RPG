@@ -11,6 +11,9 @@ public class InputManager : MonoBehaviour
     [Tooltip("Global Input Actions")]
     public InputActionAsset GlobalInputActions;
 
+    // InputActionMap for player controls
+    private InputActionMap playerControls;
+
     private void Awake()
     {
         // If there is no instance of InputManager, make this the instance
@@ -25,5 +28,36 @@ public class InputManager : MonoBehaviour
             // If an instance already exists, destroy this object
             Destroy(gameObject);
         }
+
+        // TODO: Initialize player controls
+        InitializePlayerControls();
     }
+
+    private void OnEnable()
+    {
+        // Enable player controls when this script is enabled
+        playerControls.Enable();
+    }
+
+    private void OnDisable()
+    {
+        // Disable player controls when this script is disabled
+        playerControls.Disable();
+    }
+
+    private void InitializePlayerControls()
+    {
+        // Find the "Player" action map within the GlobalInputActions
+        playerControls = GlobalInputActions.FindActionMap("Player", true);
+
+        // TODO: Add listeners for specific actions within the "Player" action map
+        // Example: playerControls["Jump"].performed += ctx => Jump();
+    }
+
+    // TODO: Implement functions for specific actions
+    // Example:
+    // private void Jump()
+    // {
+    //     Debug.Log("Jump action performed");
+    // }
 }

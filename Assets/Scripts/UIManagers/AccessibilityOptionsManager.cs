@@ -29,17 +29,18 @@ public class AccessibilityOptionsManager : MonoBehaviour, IPanelManager
     {
         OptionsManager.Instance.RegisterPanel(this);
         Load();  // Load settings
-        OptionsManager.Instance.RegisterPanel(this);
 
         // Populate dropdowns
         PopulateFontSizeDropdown();
+        PopulateAspectRatioDropdown();
 
         // Add listeners
-        fontSizeDropdown.onValueChanged.AddListener(delegate { SetFontSize(fontSizeDropdown.value); });
+        fontSizeDropdown.onValueChanged.AddListener(SetFontSize);
         colorblindModeToggle.onValueChanged.AddListener(SetColorblindMode);
         highContrastModeToggle.onValueChanged.AddListener(SetHighContrastMode);
         subtitlesToggle.onValueChanged.AddListener(SetSubtitles);
         textToSpeechToggle.onValueChanged.AddListener(SetTextToSpeech);
+        aspectRatioDropdown.onValueChanged.AddListener(SetAspectRatio);
     }
 
     public void ShowPanel()
@@ -77,41 +78,34 @@ public class AccessibilityOptionsManager : MonoBehaviour, IPanelManager
         aspectRatioDropdown.value = PlayerPrefs.GetInt("AspectRatio", 0);
     }
 
-
     public void SetColorblindMode(bool isColorblind)
     {
         PlayerPrefs.SetInt("IsColorblind", isColorblind ? 1 : 0);
-        colorblindModeToggle.isOn = isColorblind;
     }
 
     public void SetHighContrastMode(bool isHighContrast)
     {
         PlayerPrefs.SetInt("IsHighContrast", isHighContrast ? 1 : 0);
-        highContrastModeToggle.isOn = isHighContrast;
     }
 
     public void SetSubtitles(bool isSubtitles)
     {
         PlayerPrefs.SetInt("IsSubtitles", isSubtitles ? 1 : 0);
-        subtitlesToggle.isOn = isSubtitles;
     }
 
     public void SetTextToSpeech(bool isTextToSpeech)
     {
         PlayerPrefs.SetInt("IsTextToSpeech", isTextToSpeech ? 1 : 0);
-        textToSpeechToggle.isOn = isTextToSpeech;
     }
 
     public void SetFontSize(int fontSize)
     {
         PlayerPrefs.SetInt("FontSize", fontSize);
-        fontSizeDropdown.value = fontSize;
     }
 
     public void SetAspectRatio(int aspectRatio)
     {
         PlayerPrefs.SetInt("AspectRatio", aspectRatio);
-        aspectRatioDropdown.value = aspectRatio;
     }
 
     private void PopulateFontSizeDropdown()
@@ -119,5 +113,12 @@ public class AccessibilityOptionsManager : MonoBehaviour, IPanelManager
         List<string> options = new List<string> { "Small", "Medium", "Large" };
         fontSizeDropdown.ClearOptions();
         fontSizeDropdown.AddOptions(options);
+    }
+
+    private void PopulateAspectRatioDropdown()
+    {
+        List<string> options = new List<string> { "4:3", "16:9", "21:9" };
+        aspectRatioDropdown.ClearOptions();
+        aspectRatioDropdown.AddOptions(options);
     }
 }

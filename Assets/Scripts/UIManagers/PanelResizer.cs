@@ -1,13 +1,18 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class PanelResizer : MonoBehaviour
 {
     // Reference to the MasterCanvas
+    [Tooltip("Reference to the Master Canvas")]
     public Canvas masterCanvas;
 
     // Reference to the Panels
+    [Tooltip("Array of panels to be resized")]
     public GameObject[] panels;
+
+    // Padding for the panels
+    [Tooltip("Padding for the panels")]
+    public Vector2 padding;
 
     void Start()
     {
@@ -24,8 +29,9 @@ public class PanelResizer : MonoBehaviour
             panelRect.anchorMax = new Vector2(1, 1);
 
             // Set the size and position to zero to fully stretch it
-            panelRect.offsetMin = Vector2.zero;
-            panelRect.offsetMax = Vector2.zero;
+            // Add padding to the panels
+            panelRect.offsetMin = padding;
+            panelRect.offsetMax = -padding;
         }
     }
 }
