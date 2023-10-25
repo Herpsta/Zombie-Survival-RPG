@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using TMPro;
 
-public class AccessibilityOptionsManager : MonoBehaviour, IPanelManager
+public class AccessibilityOptionsManager : IPanelManager
 {
     [Tooltip("Dropdown for font size selection")]
     public TMP_Dropdown fontSizeDropdown;

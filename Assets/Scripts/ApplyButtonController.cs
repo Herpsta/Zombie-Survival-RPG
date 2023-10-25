@@ -1,114 +1,114 @@
 using UnityEngine;
-using UnityEngine.UI; // Required for handling UI elements
+using UnityEngine.UI;
 
 public class ApplyButtonController : MonoBehaviour
 {
     [Tooltip("The apply button")]
-    public GameObject applyButton;  // Changed to GameObject
+    public GameObject applyButton;
 
     [Tooltip("The error message text object")]
-    public Text errorMessage;  // UI Text object to display error messages
+    public Text errorMessage;
 
     private bool settingsChanged = false;
-    private Settings previousSettings; // Store the previous settings
+    private Settings previousSettings;
 
     void Start()
     {
-        // Disable the button at the start
+        if (applyButton == null || errorMessage == null)
+        {
+            Debug.LogError("ApplyButton or ErrorMessage is not assigned in the inspector");
+            this.enabled = false; // Disable this script
+            return;
+        }
+
+        if (OptionsManager.Instance == null)
+        {
+            Debug.LogError("OptionsManager instance is not properly set up");
+            this.enabled = false; // Disable this script
+            return;
+        }
+
         DisableButton();
-        // Hide the error message at the start
         HideErrorMessage();
+    }
+
+    void Update()
+    {
+        if (settingsChanged)
+        {
+            EnableButton();
+        }
+        else
+        {
+            DisableButton();
+        }
     }
 
     public void OnSettingChanged()
     {
         settingsChanged = true;
-        // Enable the button when a setting is changed
-        EnableButton();
     }
 
     public void OnApplyButtonClicked()
     {
-        // Validate the new settings before applying them
         if (OptionsManager.Instance.Validate())
         {
-            // Store the current settings before applying the new ones
-            previousSettings = OptionsManager.Instance.GetCurrentSettings();
-
+            previousSettings = OptionsManager.Instance.GetCurrentSettings().Clone();
             OptionsManager.Instance.Save();
             settingsChanged = false;
-            // Disable the button after applying settings
             DisableButton();
-            // Hide any error message
             HideErrorMessage();
         }
         else
         {
-            // Show an error message to the user
             ShowErrorMessage("Invalid settings. Please check and try again.");
-            // Revert to previous settings if new settings are not validated
             RevertToPreviousSettings();
         }
     }
 
     public void OnCancelButtonClicked()
     {
-        // Rollback to the previous settings if the cancel button is clicked
-        if (previousSettings != null)
-        {
-            OptionsManager.Instance.Load(previousSettings);
-        }
+        RevertToPreviousSettings();
     }
 
     public void OnPreviewButtonClicked()
     {
-        // Temporarily apply the settings for preview
         if (OptionsManager.Instance.Validate())
         {
-            // Store the current settings before applying the new ones
-            previousSettings = OptionsManager.Instance.GetCurrentSettings();
-
+            previousSettings = OptionsManager.Instance.GetCurrentSettings().Clone();
             OptionsManager.Instance.Save();
-            // Hide any error message
             HideErrorMessage();
+            // Delay the revert to allow for preview
+            Invoke("RevertToPreviousSettings", 5f); // Revert after 5 seconds
         }
         else
         {
-            // Show an error message to the user
             ShowErrorMessage("Invalid settings. Please check and try again.");
-            // Revert to previous settings if new settings are not validated
             RevertToPreviousSettings();
         }
     }
 
     private void DisableButton()
     {
-        // Custom logic to disable the button
-        // Using GameObject's SetActive method
         applyButton.SetActive(false);
     }
 
     private void EnableButton()
     {
-        // Custom logic to enable the button
-        // Using GameObject's SetActive method
         applyButton.SetActive(true);
     }
 
     private void ShowErrorMessage(string message)
     {
-        // Show the error message
         errorMessage.text = message;
         errorMessage.gameObject.SetActive(true);
     }
 
     private void HideErrorMessage()
     {
-        // Hide the error message
         errorMessage.gameObject.SetActive(false);
     }
 
-    // TODO: Implement a method to revert to previous settings if new settings are not validated
     private void RevertToPreviousSettings()
     {
         if (previousSettings != null)
