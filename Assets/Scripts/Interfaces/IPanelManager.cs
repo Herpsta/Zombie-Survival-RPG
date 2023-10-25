@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class PanelManager : MonoBehaviour, IPanelManager
+public class IPanelManager : MonoBehaviour
 {
     // TODO: Define the variables that will be used in the methods below.
     // For example, if the panel is a UI element, you might need a reference to it.

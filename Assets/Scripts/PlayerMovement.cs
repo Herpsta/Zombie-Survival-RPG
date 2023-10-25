@@ -75,5 +75,4 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 }
-```
-This script now includes an Update method to handle user input for movement, jumping, and crouching. It also includes a method to apply gravity to the player when they are not grounded. The isJumping variable is used to prevent the player from jumping again while they are already in the air.
+// This script now includes an Update method to handle user input for movement, jumping, and crouching. It also includes a method to apply gravity to the player when they are not grounded. The isJumping variable is used to prevent the player from jumping again while they are already in the air.

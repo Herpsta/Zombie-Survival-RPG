@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 
-public class OptionsManager : MonoBehaviour
+public class OptionsManager : IPanelManager
 {
     [Tooltip("Container for buttons")]
     public GameObject buttonContainer;
