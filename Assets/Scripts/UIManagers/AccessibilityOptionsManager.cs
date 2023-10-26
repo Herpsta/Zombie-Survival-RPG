@@ -1,10 +1,12 @@
 using UnityEngine;
-using UnityEngine.UI;
-using System.Collections.Generic;
 using TMPro;
+using UnityEngine.UI;
+using System.Threading.Tasks;
 
-public class AccessibilityOptionsManager : IPanelManager
+public class AccessibilityOptionsManager : MonoBehaviour
 {
+    [SerializeField] private Settings settings;  // Reference to the Settings class
+
     [Tooltip("Dropdown for font size selection")]
     public TMP_Dropdown fontSizeDropdown;
 
@@ -27,16 +29,15 @@ public class AccessibilityOptionsManager : IPanelManager
     public Toggle voiceCommandsToggle; // Added voice commands toggle
 
     public GameObject accessibilityPanel;
-    public GameObject previewPanel; // Added preview panel
 
     private void Start()
     {
-        OptionsManager.Instance.RegisterPanel(this);
-        Load();  // Load settings
-
-        // Populate dropdowns
-        PopulateFontSizeDropdown();
-        PopulateAspectRatioDropdown();
+        // Check if all UI elements and settings are assigned
+        if (fontSizeDropdown == null || colorblindModeToggle == null || aspectRatioDropdown == null || highContrastModeToggle == null || subtitlesToggle == null || textToSpeechToggle == null || voiceCommandsToggle == null || settings == null || accessibilityPanel == null)
+        {
+            Debug.LogError("Not all UI elements or settings are assigned in the inspector");
+            return;
+        }
 
         // Add listeners
         fontSizeDropdown.onValueChanged.AddListener(SetFontSize);
@@ -46,6 +47,31 @@ public class AccessibilityOptionsManager : IPanelManager
         textToSpeechToggle.onValueChanged.AddListener(SetTextToSpeech);
         aspectRatioDropdown.onValueChanged.AddListener(SetAspectRatio);
         voiceCommandsToggle.onValueChanged.AddListener(SetVoiceCommands); // Added listener for voice commands
+
+        Load();  // Load settings
+    }
+
+    private void OnEnable()
+    {
+        Load();
+    }
+
+    private void OnDisable()
+    {
+        if (fontSizeDropdown != null)
+            fontSizeDropdown.onValueChanged.RemoveListener(SetFontSize);
+        if (colorblindModeToggle != null)
+            colorblindModeToggle.onValueChanged.RemoveListener(SetColorblindMode);
+        if (highContrastModeToggle != null)
+            highContrastModeToggle.onValueChanged.RemoveListener(SetHighContrastMode);
+        if (subtitlesToggle != null)
+            subtitlesToggle.onValueChanged.RemoveListener(SetSubtitles);
+        if (textToSpeechToggle != null)
+            textToSpeechToggle.onValueChanged.RemoveListener(SetTextToSpeech);
+        if (aspectRatioDropdown != null)
+            aspectRatioDropdown.onValueChanged.RemoveListener(SetAspectRatio);
+        if (voiceCommandsToggle != null)
+            voiceCommandsToggle.onValueChanged.RemoveListener(SetVoiceCommands);
     }
 
     public void ShowPanel()
@@ -58,92 +84,90 @@ public class AccessibilityOptionsManager : IPanelManager
         accessibilityPanel.SetActive(false);
     }
 
-    public void Save()
+    public async Task Save()
     {
-        // Save settings to PlayerPrefs
-        PlayerPrefs.SetInt("FontSize", fontSizeDropdown.value);
-        PlayerPrefs.SetInt("IsColorblind", colorblindModeToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("IsHighContrast", highContrastModeToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("IsSubtitles", subtitlesToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("IsTextToSpeech", textToSpeechToggle.isOn ? 1 : 0);
-        PlayerPrefs.SetInt("AspectRatio", aspectRatioDropdown.value);
-        PlayerPrefs.SetInt("IsVoiceCommands", voiceCommandsToggle.isOn ? 1 : 0); // Save voice commands setting
+        // Save accessibility settings
+        AccessibilitySettings accessibilitySettings = new AccessibilitySettings
+        {
+            FontSize = fontSizeDropdown.value,
+            IsColorblindMode = colorblindModeToggle.isOn,
+            AspectRatio = aspectRatioDropdown.value,
+            IsHighContrastMode = highContrastModeToggle.isOn,
+            IsSubtitles = subtitlesToggle.isOn,
+            IsTextToSpeech = textToSpeechToggle.isOn,
+            IsVoiceCommands = voiceCommandsToggle.isOn
+        };
 
-        // Commit changes to disk
-        PlayerPrefs.Save();
+        try
+        {
+            await settings.SaveToDatabase("Settings", "Accessibility", accessibilitySettings);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Failed to save settings: " + e.Message);
+        }
     }
 
-    public void Load()
+    public async Task Load()
     {
-        // Load settings from PlayerPrefs
-        fontSizeDropdown.value = PlayerPrefs.GetInt("FontSize", 0);
-        colorblindModeToggle.isOn = PlayerPrefs.GetInt("IsColorblind", 0) == 1;
-        highContrastModeToggle.isOn = PlayerPrefs.GetInt("IsHighContrast", 0) == 1;
-        subtitlesToggle.isOn = PlayerPrefs.GetInt("IsSubtitles", 0) == 1;
-        textToSpeechToggle.isOn = PlayerPrefs.GetInt("IsTextToSpeech", 0) == 1;
-        aspectRatioDropdown.value = PlayerPrefs.GetInt("AspectRatio", 0);
-        voiceCommandsToggle.isOn = PlayerPrefs.GetInt("IsVoiceCommands", 0) == 1; // Load voice commands setting
+        // Load accessibility settings
+        AccessibilitySettings accessibilitySettings = null;
+        try
+        {
+            accessibilitySettings = await settings.LoadFromDatabase<AccessibilitySettings>("Settings", "Accessibility");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Failed to load settings: " + e.Message);
+            return;
+        }
+
+        // Update UI
+        UpdateUI(accessibilitySettings);
+    }
+    private void UpdateUI(AccessibilitySettings accessibilitySettings)
+    {
+        fontSizeDropdown.value = accessibilitySettings.FontSize;
+        colorblindModeToggle.isOn = accessibilitySettings.IsColorblindMode;
+        aspectRatioDropdown.value = accessibilitySettings.AspectRatio;
+        highContrastModeToggle.isOn = accessibilitySettings.IsHighContrastMode;
+        subtitlesToggle.isOn = accessibilitySettings.IsSubtitles;
+        textToSpeechToggle.isOn = accessibilitySettings.IsTextToSpeech;
+        voiceCommandsToggle.isOn = accessibilitySettings.IsVoiceCommands;
     }
 
     public void SetColorblindMode(bool isColorblind)
     {
-        PlayerPrefs.SetInt("IsColorblind", isColorblind ? 1 : 0);
-        Preview(); // Update preview
+        settings.IsColorblindMode = isColorblind;
     }
 
     public void SetHighContrastMode(bool isHighContrast)
     {
-        PlayerPrefs.SetInt("IsHighContrast", isHighContrast ? 1 : 0);
-        Preview(); // Update preview
+        settings.IsHighContrastMode = isHighContrast;
     }
 
     public void SetSubtitles(bool isSubtitles)
     {
-        PlayerPrefs.SetInt("IsSubtitles", isSubtitles ? 1 : 0);
-        Preview(); // Update preview
+        settings.IsSubtitles = isSubtitles;
     }
 
     public void SetTextToSpeech(bool isTextToSpeech)
     {
-        PlayerPrefs.SetInt("IsTextToSpeech", isTextToSpeech ? 1 : 0);
-        Preview(); // Update preview
+        settings.IsTextToSpeech = isTextToSpeech;
     }
 
     public void SetFontSize(int fontSize)
     {
-        PlayerPrefs.SetInt("FontSize", fontSize);
-        Preview(); // Update preview
+        settings.FontSize = fontSize;
     }
 
     public void SetAspectRatio(int aspectRatio)
     {
-        PlayerPrefs.SetInt("AspectRatio", aspectRatio);
-        Preview(); // Update preview
+        settings.AspectRatio = aspectRatio;
     }
 
     public void SetVoiceCommands(bool isVoiceCommands)
     {
-        PlayerPrefs.SetInt("IsVoiceCommands", isVoiceCommands ? 1 : 0);
-        Preview(); // Update preview
-    }
-
-    private void PopulateFontSizeDropdown()
-    {
-        List<string> options = new List<string> { "Small", "Medium", "Large" };
-        fontSizeDropdown.ClearOptions();
-        fontSizeDropdown.AddOptions(options);
-    }
-
-    private void PopulateAspectRatioDropdown()
-    {
-        List<string> options = new List<string> { "4:3", "16:9", "21:9" };
-        aspectRatioDropdown.ClearOptions();
-        aspectRatioDropdown.AddOptions(options);
-    }
-
-    private void Preview()
-    {
-        // TODO: Implement a preview feature for selected options.
-        // This could involve changing the settings of the previewPanel based on the current settings.
+        settings.IsVoiceCommands = isVoiceCommands;
     }
 }

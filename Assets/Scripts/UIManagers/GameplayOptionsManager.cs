@@ -1,8 +1,8 @@
 using UnityEngine;
+using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
-using TMPro;
-using System;
+using System.Threading.Tasks;
 
 public class GameplayOptionsManager : MonoBehaviour
 {
@@ -13,20 +13,29 @@ public class GameplayOptionsManager : MonoBehaviour
     public TMP_Dropdown difficultyDropdown;
 
     [Tooltip("Slider for camera sensitivity")]
-    public Slider cameraSensitivitySlider; // Added a slider for camera sensitivity
+    public Slider cameraSensitivitySlider;
 
     [Tooltip("Panel for gameplay options")]
     public GameObject gameplayPanel;
 
+    [SerializeField] private Settings settings;  // Reference to the Settings class
+
     private void Start()
     {
+        // Check if UI elements are assigned
+        if (autoSaveToggle == null || difficultyDropdown == null || cameraSensitivitySlider == null)
+        {
+            Debug.LogError("All UI elements must be assigned in the inspector.");
+            return;
+        }
+
         // Load saved settings
         Load();
 
         // Add listeners to UI elements
         autoSaveToggle.onValueChanged.AddListener(SetAutoSave);
         difficultyDropdown.onValueChanged.AddListener(SetDifficulty);
-        cameraSensitivitySlider.onValueChanged.AddListener(SetCameraSensitivity); // Added listener for camera sensitivity slider
+        cameraSensitivitySlider.onValueChanged.AddListener(SetCameraSensitivity);
 
         // Populate the difficulty dropdown
         PopulateDifficultyDropdown();
@@ -42,55 +51,74 @@ public class GameplayOptionsManager : MonoBehaviour
         gameplayPanel.SetActive(false);
     }
 
-    public void Save()
+    public async Task Save()
     {
-        // Save the state of the autoSaveToggle
-        PlayerPrefs.SetInt("AutoSave", autoSaveToggle.isOn ? 1 : 0);
+        try
+        {
+            // Save gameplay settings
+            GameplaySettings gameplaySettings = new GameplaySettings
+            {
+                AutoSave = autoSaveToggle.isOn,
+                Difficulty = difficultyDropdown.value,
+                CameraSensitivity = cameraSensitivitySlider.value
+            };
+            await settings.SaveToDatabase("Settings", "Gameplay", gameplaySettings);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Failed to save settings: " + e.Message);
+        }
 
-        // Save the value of the difficultyDropdown
-        PlayerPrefs.SetInt("Difficulty", difficultyDropdown.value);
-
-        // Save the value of the cameraSensitivitySlider
-        PlayerPrefs.SetFloat("CameraSensitivity", cameraSensitivitySlider.value); // Save camera sensitivity
-
-        // Commit changes to disk
-        PlayerPrefs.Save();
+        // TODO: Save other settings
     }
 
-    public void Load()
+    public async Task Load()
     {
-        // Load saved auto-save state and set the toggle
-        autoSaveToggle.isOn = PlayerPrefs.GetInt("AutoSave", 0) == 1; // Default to off (0) if not found
+        try
+        {
+            // Load gameplay settings
+            GameplaySettings gameplaySettings = await settings.LoadFromDatabase<GameplaySettings>("Settings", "Gameplay");
 
-        // Load saved difficulty level and set the dropdown value
-        difficultyDropdown.value = PlayerPrefs.GetInt("Difficulty", 0); // Default to the first option (0) if not found
+            // Update UI
+            UpdateUI(gameplaySettings);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Failed to load settings: " + e.Message);
+        }
 
-        // Load saved camera sensitivity and set the slider value
-        cameraSensitivitySlider.value = PlayerPrefs.GetFloat("CameraSensitivity", 0.5f); // Default to middle (0.5) if not found
+        // TODO: Load other settings and update UI
     }
 
-    // Function for Difficulty
+    private void UpdateUI(GameplaySettings gameplaySettings)
+    {
+        // Ensure we're on the main thread
+        if (!UnityMainThreadDispatcher.Instance().IsMainThread())
+        {
+            UnityMainThreadDispatcher.Instance().Enqueue(() => UpdateUI(gameplaySettings));
+            return;
+        }
+
+        autoSaveToggle.isOn = gameplaySettings.AutoSave;
+        difficultyDropdown.value = gameplaySettings.Difficulty;
+        cameraSensitivitySlider.value = gameplaySettings.CameraSensitivity;
+    }
+
     public void SetDifficulty(int difficultyLevel)
     {
-        PlayerPrefs.SetInt("Difficulty", difficultyLevel);
         // TODO: Add logic to set the difficulty level in the game
     }
 
-    // Function for Auto-Save
     public void SetAutoSave(bool autoSave)
     {
-        PlayerPrefs.SetInt("AutoSave", autoSave ? 1 : 0);
         // TODO: Add logic to enable/disable auto-save in the game
     }
 
-    // Function for Camera Sensitivity
     public void SetCameraSensitivity(float sensitivity)
     {
-        PlayerPrefs.SetFloat("CameraSensitivity", sensitivity);
         // TODO: Add logic to adjust camera sensitivity in the game
     }
 
-    // Populate Difficulty Dropdown
     private void PopulateDifficultyDropdown()
     {
         // Define difficulty levels

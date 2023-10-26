@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public class ApplyButtonController : MonoBehaviour
 {
@@ -11,6 +12,25 @@ public class ApplyButtonController : MonoBehaviour
 
     private bool settingsChanged = false;
     private Settings previousSettings;
+
+    // Singleton instance
+    public static ApplyButtonController Instance { get; private set; }
+
+    // Event for settings change
+    public static event Action OnSettingsChanged;
+
+    private void Awake()
+    {
+        // Singleton pattern
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
 
     void Start()
     {
@@ -30,6 +50,9 @@ public class ApplyButtonController : MonoBehaviour
 
         DisableButton();
         HideErrorMessage();
+
+        // Subscribe to event
+        OnSettingsChanged += OnSettingChanged;
     }
 
     void Update()
@@ -115,5 +138,11 @@ public class ApplyButtonController : MonoBehaviour
         {
             OptionsManager.Instance.Load(previousSettings);
         }
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe from event
+        OnSettingsChanged -= OnSettingChanged;
     }
 }
