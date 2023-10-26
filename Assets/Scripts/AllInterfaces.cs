@@ -1,6 +1,58 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading.Tasks;
+
+public interface IOptionsManager
+{
+    void RegisterPanel(IPanelManager panelManager);  // Dependency injected
+    void ShowOnlyThisPanel(IPanelManager activePanel);
+    void Save();
+    void Load();
+    void ShowAllPanels();
+    void HideAllPanels();
+}
+
+
+public interface ISettings
+{
+    SimpleSQLManager DbManager { get; set; }
+    Task Start();
+    void SaveSettings();
+}
+
+public interface IGraphicsSettings
+{
+    int ResolutionIndex { get; set; }
+    bool FullScreen { get; set; }
+}
+
+public interface IAccessibilitySettings
+{
+    bool Subtitles { get; set; }
+    bool IsColorblindMode { get; set; }
+    bool IsHighContrastMode { get; set; }
+    bool IsTextToSpeech { get; set; }
+    bool IsVoiceCommands { get; set; }
+    int FontSize { get; set; }
+    int AspectRatio { get; set; }
+}
+
+public interface ISoundSettings
+{
+    float MasterVolume { get; set; }
+}
+
+public interface IControlsSettings
+{
+    KeyCode JumpKey { get; set; }
+}
+
+public interface IGameplaySettings
+{
+    int DifficultyLevel { get; set; }
+}
+
 
 // Interface for objects that can be interacted with.
 public interface IInteractable
@@ -175,8 +227,8 @@ public interface IPanelManager
 {
     void ShowPanel();
     void HidePanel();
-    void SavePanel();
-    void LoadPanel();
+    void Save();
+    void Load();
 }
 
 // Interface for SQLite database operations.

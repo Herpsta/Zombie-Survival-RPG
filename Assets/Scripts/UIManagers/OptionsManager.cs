@@ -4,10 +4,8 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 
-public class OptionsManager : MonoBehaviour, IPanelManager
+public class OptionsManager : MonoBehaviour, IOptionsManager
 {
-    // ... (rest of your variables)
-
     private List<IPanelManager> panelManagers = new List<IPanelManager>();
 
     public void RegisterPanel(IPanelManager panelManager)
@@ -98,4 +96,4 @@ public class OptionsManager : MonoBehaviour, IPanelManager
             panel.HidePanel();
         }
     }
-}
+}

@@ -2,23 +2,47 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
+/// <summary>
+/// Manages the Apply button in the settings menu.
+/// Implements the Singleton, IUIElement, IErrorHandle, and ISaveState interfaces.
+/// </summary>
 public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, ISaveState
 {
+    /// <summary>
+    /// The GameObject representing the Apply button.
+    /// </summary>
     [Tooltip("The apply button")]
     public GameObject applyButton;
 
+    /// <summary>
+    /// The Text object used for displaying error messages.
+    /// </summary>
     [Tooltip("The error message text object")]
     public Text errorMessage;
 
+    /// <summary>
+    /// Indicates whether the settings have changed.
+    /// </summary>
     private bool settingsChanged = false;
-    private Settings previousSettings;
 
-    // Singleton instance
+    /// <summary>
+    /// Stores the previous settings.
+    /// </summary>
+    private ISettings previousSettings;
+
+    /// <summary>
+    /// Singleton instance.
+    /// </summary>
     public static ApplyButtonController Instance { get; private set; }
 
-    // Event for settings change
+    /// <summary>
+    /// Event for settings change.
+    /// </summary>
     public static event Action OnSettingsChanged;
 
+    /// <summary>
+    /// Initializes the Singleton instance.
+    /// </summary>
     private void Awake()
     {
         // Singleton pattern
