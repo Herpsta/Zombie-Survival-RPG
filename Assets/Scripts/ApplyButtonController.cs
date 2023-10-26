@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 
-public class ApplyButtonController : MonoBehaviour
+public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, ISaveState
 {
     [Tooltip("The apply button")]
     public GameObject applyButton;
@@ -36,19 +36,19 @@ public class ApplyButtonController : MonoBehaviour
     {
         if (applyButton == null || errorMessage == null)
         {
-            Debug.LogError("ApplyButton or ErrorMessage is not assigned in the inspector");
+            LogError("ApplyButton or ErrorMessage is not assigned in the inspector");
             this.enabled = false; // Disable this script
             return;
         }
 
         if (OptionsManager.Instance == null)
         {
-            Debug.LogError("OptionsManager instance is not properly set up");
+            LogError("OptionsManager instance is not properly set up");
             this.enabled = false; // Disable this script
             return;
         }
 
-        DisableButton();
+        Hide();
         HideErrorMessage();
 
         // Subscribe to event
@@ -59,11 +59,11 @@ public class ApplyButtonController : MonoBehaviour
     {
         if (settingsChanged)
         {
-            EnableButton();
+            Show();
         }
         else
         {
-            DisableButton();
+            Hide();
         }
     }
 
@@ -77,21 +77,21 @@ public class ApplyButtonController : MonoBehaviour
         if (OptionsManager.Instance.Validate())
         {
             previousSettings = OptionsManager.Instance.GetCurrentSettings().Clone();
-            OptionsManager.Instance.Save();
+            SaveState();
             settingsChanged = false;
-            DisableButton();
+            Hide();
             HideErrorMessage();
         }
         else
         {
             ShowErrorMessage("Invalid settings. Please check and try again.");
-            RevertToPreviousSettings();
+            LoadState();
         }
     }
 
     public void OnCancelButtonClicked()
     {
-        RevertToPreviousSettings();
+        LoadState();
     }
 
     public void OnPreviewButtonClicked()
@@ -99,26 +99,26 @@ public class ApplyButtonController : MonoBehaviour
         if (OptionsManager.Instance.Validate())
         {
             previousSettings = OptionsManager.Instance.GetCurrentSettings().Clone();
-            OptionsManager.Instance.Save();
+            SaveState();
             HideErrorMessage();
             // Delay the revert to allow for preview
-            Invoke("RevertToPreviousSettings", 5f); // Revert after 5 seconds
+            Invoke("LoadState", 5f); // Revert after 5 seconds
         }
         else
         {
             ShowErrorMessage("Invalid settings. Please check and try again.");
-            RevertToPreviousSettings();
+            LoadState();
         }
     }
 
-    private void DisableButton()
-    {
-        applyButton.SetActive(false);
-    }
-
-    private void EnableButton()
+    public void Show()
     {
         applyButton.SetActive(true);
+    }
+
+    public void Hide()
+    {
+        applyButton.SetActive(false);
     }
 
     private void ShowErrorMessage(string message)
@@ -132,12 +132,27 @@ public class ApplyButtonController : MonoBehaviour
         errorMessage.gameObject.SetActive(false);
     }
 
-    private void RevertToPreviousSettings()
+    public void SaveState()
+    {
+        OptionsManager.Instance.Save();
+    }
+
+    public void LoadState()
     {
         if (previousSettings != null)
         {
             OptionsManager.Instance.Load(previousSettings);
         }
+    }
+
+    public void LogError(string message)
+    {
+        Debug.LogError(message);
+    }
+
+    public void HandleException(Exception ex)
+    {
+        Debug.LogException(ex);
     }
 
     private void OnDestroy()
