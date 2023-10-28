@@ -77,6 +77,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
     void Update()
     {
         if (inputHandler == null || characterController == null) return;
@@ -184,9 +185,15 @@ public class PlayerController : MonoBehaviour
             state = State.Attacking;
         }
 
-        if (inputHandler.GetSecondaryAttackInputDown())
+        if (inputHandler.GetSecondaryAttackInputHeldDown())
         {
             currentWeapon.SecondaryAction();
+            state = State.Attacking;
+        }
+
+        if (inputHandler.GetPowerAttackInputHeldDown())
+        {
+            currentWeapon.PowerAttack();
             state = State.Attacking;
         }
     }
@@ -203,15 +210,25 @@ public class PlayerController : MonoBehaviour
         state = State.Attacking;
     }
 
+
     private void Block()
     {
         if (Time.time < lastBlockTime + blockCooldown) return;
 
         if (inputHandler.GetBlockInputDown())
         {
+            currentWeapon.Block();
             state = State.Blocking;
             lastBlockTime = Time.time;
             Invoke("EndBlock", blockDuration);
+        }
+    }
+
+    private void Reload()
+    {
+        if (inputHandler.GetReloadInputDown())
+        {
+            currentWeapon.Reload();
         }
     }
 
