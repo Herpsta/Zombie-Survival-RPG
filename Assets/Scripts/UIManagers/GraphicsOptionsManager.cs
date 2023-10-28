@@ -3,25 +3,41 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Threading;
 
-public class GraphicsOptionsManager : MonoBehaviour
+public interface IGraphicsOptions
+{
+    Task SaveSettings();
+    Task LoadSettings();
+}
+
+public class GraphicsOptionsManager : MonoBehaviour, IGraphicsOptions, IGraphicsSettings
 {
     [Tooltip("Dropdown for resolution selection")]
-    public TMP_Dropdown resolutionDropdown;
+    [SerializeField] private TMP_Dropdown resolutionDropdown;
 
     [Tooltip("Dropdown for quality selection")]
-    public TMP_Dropdown qualityDropdown;
+    [SerializeField] private TMP_Dropdown qualityDropdown;
 
     [Tooltip("Toggle for fullscreen mode")]
-    public Toggle fullscreenToggle;
+    [SerializeField] private Toggle fullscreenToggle;
 
     [Tooltip("Dropdown for aspect ratio selection")]
-    public TMP_Dropdown aspectRatioDropdown;
+    [SerializeField] private TMP_Dropdown aspectRatioDropdown;
 
     private Resolution[] resolutions;
     public GameObject graphicsPanel;
 
     [SerializeField] private Settings settings; // Reference to the Settings class
+
+    private CancellationTokenSource cts;
+
+    private bool isDestroyed = false;
+
+    private void Awake()
+    {
+        cts = new CancellationTokenSource();
+    }
 
     private void Start()
     {
@@ -29,6 +45,7 @@ public class GraphicsOptionsManager : MonoBehaviour
             aspectRatioDropdown == null)
         {
             Debug.LogError("All UI elements must be assigned in the inspector.");
+            enabled = false;  // Disable script if UI elements are null
             return;
         }
 
@@ -36,14 +53,14 @@ public class GraphicsOptionsManager : MonoBehaviour
         PopulateResolutionDropdown();
         PopulateQualityDropdown();
         PopulateAspectRatioDropdown();
-
+    
         resolutionDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
         qualityDropdown.onValueChanged.AddListener(SetQuality);
         fullscreenToggle.onValueChanged.AddListener(SetFullscreen);
-        aspectRatioDropdown.onValueChanged.AddListener(delegate { ChangeResolution(); });
+        aspectRatioDropdown.onValueChanged.AddListener(delegate { UpdateResolutionsForAspectRatio(); });  // Updated this line
 
-        // Start Load method as a separate task
-        Load();
+        // Start LoadSettings method as a separate task
+        LoadSettings();
     }
 
     private void PopulateResolutionDropdown()
@@ -79,9 +96,9 @@ public class GraphicsOptionsManager : MonoBehaviour
     private void PopulateAspectRatioDropdown()
     {
         aspectRatioDropdown.ClearOptions();
-        List<string> options = new List<string>() { "16:9", "16:10", "4:3" }; // Add more as needed
+        List<string> options = new List<string>() { "16:9", "16:10", "4:3" };  // Add more as needed
         aspectRatioDropdown.AddOptions(options);
-        aspectRatioDropdown.value = 0; // Default to first option
+        aspectRatioDropdown.value = 0;  // Default to first option
         aspectRatioDropdown.RefreshShownValue();
     }
 
@@ -95,14 +112,50 @@ public class GraphicsOptionsManager : MonoBehaviour
         Screen.fullScreen = isFullscreen;
     }
 
-    private void ChangeResolution()
+    private void UpdateResolutionsForAspectRatio()
     {
-        Resolution resolution = resolutions[resolutionDropdown.value];
-        Screen.SetResolution(resolution.width, resolution.height, Screen.fullScreen);
+        string[] aspectRatioParts = aspectRatioDropdown.options[aspectRatioDropdown.value].text.Split(':');
+        float aspectRatio = float.Parse(aspectRatioParts[0]) / float.Parse(aspectRatioParts[1]);
+
+        resolutionDropdown.ClearOptions();
+        List<string> options = new List<string>();
+        int currentResolutionIndex = 0;
+        for (int i = 0; i < resolutions.Length; i++)
+        {
+            float resolutionAspectRatio = (float)resolutions[i].width / resolutions[i].height;
+            if (Mathf.Approximately(resolutionAspectRatio, aspectRatio))
+            {
+                string option = resolutions[i].width + " x " + resolutions[i].height;
+                options.Add(option);
+                if (resolutions[i].width == Screen.currentResolution.width &&
+                    resolutions[i].height == Screen.currentResolution.height)
+                {
+                    currentResolutionIndex = i;
+                }
+            }
+        }
+
+        resolutionDropdown.AddOptions(options);
+        resolutionDropdown.value = currentResolutionIndex;
+        resolutionDropdown.RefreshShownValue();
     }
 
-    public async Task Save()
+    private void ChangeResolution()
     {
+        string[] resolutionParts = resolutionDropdown.options[resolutionDropdown.value].text.Split('x');
+        int width = int.Parse(resolutionParts[0].Trim());
+        int height = int.Parse(resolutionParts[1].Trim());
+        Screen.SetResolution(width, height, Screen.fullScreen);
+    }
+
+
+    public int ResolutionIndex { get; set; }  // Implementation of IGraphicsSettings interface
+    public bool FullScreen { get; set; }  // Implementation of IGraphicsSettings interface
+
+    public async Task SaveSettings()
+    {
+        if (isDestroyed) return;  // Check if object is destroyed before proceeding
+
         try
         {
             Settings.GraphicsSettings graphicsSettings = new Settings.GraphicsSettings
@@ -117,12 +170,12 @@ public class GraphicsOptionsManager : MonoBehaviour
         {
             Debug.LogError("Failed to save settings: " + e.Message);
         }
-
-        // TODO: Save other settings
     }
 
-    public async void Load()
+    public async Task LoadSettings()
     {
+        if (isDestroyed) return;  // Check if object is destroyed before proceeding
+
         try
         {
             // Load settings from the database
@@ -131,16 +184,20 @@ public class GraphicsOptionsManager : MonoBehaviour
             // Update UI on the main thread
             UnityMainThreadDispatcher.Instance().Enqueue(() =>
             {
-                GraphicsSettings graphicsSettings = settings.graphicsSettings;
+                Settings.GraphicsSettings graphicsSettings = settings.graphicsSettings;
                 resolutionDropdown.value = graphicsSettings.resolutionIndex;
                 fullscreenToggle.isOn = graphicsSettings.fullScreen;
-
-                // TODO: Load other settings and update UI
             });
         }
         catch (System.Exception e)
         {
             Debug.LogError("Failed to load settings: " + e.Message);
         }
+    }
+
+    private void OnDestroy()
+    {
+        isDestroyed = true;
+        cts.Cancel();
     }
 }

@@ -26,6 +26,8 @@ public class UnityMainThreadDispatcher : MonoBehaviour
 
     public void Enqueue(System.Action action)
     {
+        if (action == null) throw new System.ArgumentNullException(nameof(action));
+
         lock (_executionQueue)
         {
             _executionQueue.Enqueue(action);
@@ -39,4 +41,4 @@ public class UnityMainThreadDispatcher : MonoBehaviour
             _executionQueue.Dequeue().Invoke();
         }
     }
-}
+}

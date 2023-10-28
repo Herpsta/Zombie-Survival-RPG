@@ -1,92 +1,122 @@
 using SimpleSQL;
 using UnityEngine;
-using System.Collections.Generic;  // For using List
-using System.Linq; // For using LINQ
-using System; // For using Convert
-using System.Text; // For using Encoding
+using System.Collections.Generic;
+using System.Linq;
+using System;
+using System.Text;
+using System.Threading.Tasks;
 
 public class SimpleSQLManager : SimpleSQL.SimpleSQLManager
 {
-    // Define your table as a C# class
+    // Define your new settings model as a C# class
     [System.Serializable]
-    public class Settings
+    public class SettingsModel
     {
-        public string SettingName;
-        public string SettingValue;
+        public string Graphics { get; set; }
+        public string Accessibility { get; set; }
+        public string Sound { get; set; }
+        public string Controls { get; set; }
+        public string Gameplay { get; set; }
     }
 
     // Initialize the database and create the table
-    void Start()
+    private async void Start()
     {
-        // Check if the table already exists
-        var tableExists = Query<Settings>("SELECT name FROM sqlite_master WHERE type='table' AND name='Settings'").Count > 0;
-
-        // If not, create it
-        if (!tableExists)
+        // Run database setup on a separate thread
+        await Task.Run(() =>
         {
-            Execute("CREATE TABLE Settings (SettingName TEXT PRIMARY KEY, SettingValue TEXT)");
-        }
-    }
+            // Check if the table already exists
+            var tableExists = Query<SettingsModel>("SELECT name FROM sqlite_master WHERE type='table' AND name='Settings'").Count > 0;
 
-    // Method to save a setting
-    public void SaveSetting(string settingName, string settingValue, bool isSensitive = false)
-    {
-        // If the setting is sensitive, encrypt it
-        if (isSensitive)
-        {
-            settingValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(settingValue));
-        }
-
-        // Check if the setting already exists
-        var settingExists = Query<Settings>("SELECT * FROM Settings WHERE SettingName = ?", settingName).Count > 0;
-
-        // If it does, update it. Otherwise, insert a new row
-        if (settingExists)
-        {
-            Execute("UPDATE Settings SET SettingValue = ? WHERE SettingName = ?", settingValue, settingName);
-        }
-        else
-        {
-            Execute("INSERT INTO Settings (SettingName, SettingValue) VALUES (?, ?)", settingName, settingValue);
-        }
-    }
-
-    // Method to load a setting
-    public string LoadSetting(string settingName, bool isSensitive = false)
-    {
-        var result = Query<Settings>("SELECT SettingValue FROM Settings WHERE SettingName = ?", settingName);
-        if (result.Count > 0)
-        {
-            string settingValue = result[0].SettingValue;
-
-            // If the setting is sensitive, decrypt it
-            if (isSensitive)
+            // If not, create it
+            if (!tableExists)
             {
-                settingValue = Encoding.UTF8.GetString(Convert.FromBase64String(settingValue));
+                Execute("CREATE TABLE Settings (Graphics TEXT, Accessibility TEXT, Sound TEXT, Controls TEXT, Gameplay TEXT)");
             }
-
-            return settingValue;
-        }
-        else
-        {
-            return null;
-        }
+        });
     }
 
-    // TODO: Add methods for deleting and updating multiple settings at once.
-    public void DeleteSettings(List<string> settingNames)
+    // Method to save settings
+    public async Task SaveSettingsAsync(Settings settings)
     {
-        foreach (var settingName in settingNames)
+        string graphicsSettingsJson = JsonUtility.ToJson(settings.graphicsSettings);
+        string accessibilitySettingsJson = JsonUtility.ToJson(settings.accessibilitySettings);
+        string soundSettingsJson = JsonUtility.ToJson(settings.soundSettings);
+        string controlsSettingsJson = JsonUtility.ToJson(settings.controlsSettings);
+        string gameplaySettingsJson = JsonUtility.ToJson(settings.gameplaySettings);
+
+        await Task.Run(() =>
         {
-            Execute("DELETE FROM Settings WHERE SettingName = ?", settingName);
-        }
+            var settingsExist = Query<SettingsModel>("SELECT * FROM Settings LIMIT 1").Count > 0;
+
+            if (settingsExist)
+            {
+                Execute(
+                    "UPDATE Settings SET Graphics = ?, Accessibility = ?, Sound = ?, Controls = ?, Gameplay = ?",
+                    graphicsSettingsJson, accessibilitySettingsJson, soundSettingsJson, controlsSettingsJson,
+                    gameplaySettingsJson);
+            }
+            else
+            {
+                Execute(
+                    "INSERT INTO Settings (Graphics, Accessibility, Sound, Controls, Gameplay) VALUES (?, ?, ?, ?, ?)",
+                    graphicsSettingsJson, accessibilitySettingsJson, soundSettingsJson, controlsSettingsJson,
+                    gameplaySettingsJson);
+            }
+        });
     }
 
-    public void UpdateSettings(Dictionary<string, string> settings, bool isSensitive = false)
+    // Method to load settings
+    public async Task<Settings> LoadSettingsAsync()
     {
-        foreach (var setting in settings)
+        return await Task.Run(() =>
         {
-            SaveSetting(setting.Key, setting.Value, isSensitive);
-        }
+            var result = Query<SettingsModel>("SELECT * FROM Settings LIMIT 1");
+
+            if (result.Count > 0)
+            {
+                Settings settings = new Settings
+                {
+                    graphicsSettings = JsonUtility.FromJson<Settings.GraphicsSettings>(result[0].Graphics),
+                    accessibilitySettings = JsonUtility.FromJson<Settings.AccessibilitySettings>(result[0].Accessibility),
+                    soundSettings = JsonUtility.FromJson<Settings.SoundSettings>(result[0].Sound),
+                    controlsSettings = JsonUtility.FromJson<Settings.ControlsSettings>(result[0].Controls),
+                    gameplaySettings = JsonUtility.FromJson<Settings.GameplaySettings>(result[0].Gameplay)
+                };
+                return settings;
+            }
+            else
+            {
+                // Return default settings if none found in the database
+                return new Settings();
+            }
+        });
+    }
+
+    // Method to update multiple settings
+    public async Task UpdateSettingsAsync(Settings settings)
+    {
+        string graphicsSettingsJson = JsonUtility.ToJson(settings.graphicsSettings);
+        string accessibilitySettingsJson = JsonUtility.ToJson(settings.accessibilitySettings);
+        string soundSettingsJson = JsonUtility.ToJson(settings.soundSettings);
+        string controlsSettingsJson = JsonUtility.ToJson(settings.controlsSettings);
+        string gameplaySettingsJson = JsonUtility.ToJson(settings.gameplaySettings);
+
+        await Task.Run(() =>
+        {
+            Execute(
+                "UPDATE Settings SET Graphics = ?, Accessibility = ?, Sound = ?, Controls = ?, Gameplay = ?",
+                graphicsSettingsJson, accessibilitySettingsJson, soundSettingsJson, controlsSettingsJson,
+                gameplaySettingsJson);
+        });
+    }
+
+    // Method to delete all settings
+    public async Task DeleteSettingsAsync()
+    {
+        await Task.Run(() =>
+        {
+            Execute("DELETE FROM Settings");
+        });
     }
 }

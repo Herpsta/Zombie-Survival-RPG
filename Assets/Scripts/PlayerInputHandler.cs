@@ -14,6 +14,9 @@ public class PlayerInputHandler : MonoBehaviour
     private InputAction primaryAttack;
     private InputAction secondaryAttack;
     private InputAction block;
+    private InputAction secondaryAttackHeld;  // New Input Action
+    private InputAction powerAttackHeld;      // New Input Action
+    private InputAction reload;               // New Input Action
 
     void Awake()
     {
@@ -30,9 +33,12 @@ public class PlayerInputHandler : MonoBehaviour
         primaryAttack = playerActions.FindAction("PrimaryAttack");
         secondaryAttack = playerActions.FindAction("SecondaryAttack");
         block = playerActions.FindAction("Block");
+        secondaryAttackHeld = playerActions.FindAction("SecondaryAttackHeld");  // New Input Action
+        powerAttackHeld = playerActions.FindAction("PowerAttackHeld");          // New Input Action
+        reload = playerActions.FindAction("Reload");                            // New Input Action
 
         // Check if all actions are found
-        InputAction[] actions = { movement, jump, sprint, crouch, primaryAttack, secondaryAttack, block };
+        InputAction[] actions = { movement, jump, sprint, crouch, primaryAttack, secondaryAttack, block, secondaryAttackHeld, powerAttackHeld, reload };  // Updated
         foreach (var action in actions)
         {
             if (action == null)
@@ -62,6 +68,9 @@ public class PlayerInputHandler : MonoBehaviour
         primaryAttack.Enable();
         secondaryAttack.Enable();
         block.Enable();
+        secondaryAttackHeld.Enable();  // New Input Action
+        powerAttackHeld.Enable();      // New Input Action
+        reload.Enable();               // New Input Action
     }
 
     // Disable all actions
@@ -74,6 +83,9 @@ public class PlayerInputHandler : MonoBehaviour
         primaryAttack.Disable();
         secondaryAttack.Disable();
         block.Disable();
+        secondaryAttackHeld.Disable();  // New Input Action
+        powerAttackHeld.Disable();      // New Input Action
+        reload.Disable();               // New Input Action
     }
 
     public Vector2 GetMoveInput()
@@ -109,5 +121,21 @@ public class PlayerInputHandler : MonoBehaviour
     public bool GetBlockInputDown()
     {
         return block.triggered;
+    }
+
+    // New Methods
+    public bool GetSecondaryAttackInputHeldDown()
+    {
+        return secondaryAttackHeld.phase == InputActionPhase.Performed;
+    }
+
+    public bool GetPowerAttackInputHeldDown()
+    {
+        return powerAttackHeld.phase == InputActionPhase.Performed;
+    }
+
+    public bool GetReloadInputDown()
+    {
+        return reload.triggered;
     }
 }

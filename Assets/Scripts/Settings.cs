@@ -2,6 +2,7 @@ using UnityEngine;
 using SimpleSQL;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using UnityEngine.UI;
 
 public class Settings : MonoBehaviour
 {
@@ -45,14 +46,15 @@ public class Settings : MonoBehaviour
         public int difficultyLevel;
     }
 
-    // Create instances of your settings classes here
     public GraphicsSettings graphicsSettings = new GraphicsSettings();
     public AccessibilitySettings accessibilitySettings = new AccessibilitySettings();
     public SoundSettings soundSettings = new SoundSettings();
     public ControlsSettings controlsSettings = new ControlsSettings();
     public GameplaySettings gameplaySettings = new GameplaySettings();
 
-    private async void Start()
+    private int retryCount = 0;
+
+    private async Task Start()
     {
         try
         {
@@ -72,18 +74,18 @@ public class Settings : MonoBehaviour
             {
                 // TODO: Update settings instances with current settings from your game
 
-                SaveSettings();
+                await SaveSettings();
             }
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("Failed to load settings from the database: " + ex.Message);
+            Debug.LogError("Failed to load settings from the database: " + ex.Message + "\n" + ex.StackTrace);
 
             // TODO: Decide what should happen if loading settings fails
         }
     }
 
-    public async void SaveSettings()
+    public async Task SaveSettings()
     {
         try
         {
@@ -114,30 +116,33 @@ public class Settings : MonoBehaviour
         }
         catch (System.Exception ex)
         {
-            Debug.LogError("Failed to save settings to the database: " + ex.Message);
+            Debug.LogError("Failed to save settings to the database: " + ex.Message + "\n" + ex.StackTrace);
 
-            // If saving settings fails, you might want to notify the user or log the error for debugging purposes.
-            // For example, you could show a dialog to the user to let them know that the settings could not be saved.
-            // You could also try to save the settings again, or revert to the previous settings.
-
-            // Here's an example of how you might handle this:
-            try
+            if (retryCount < 3)
             {
-                // Try to save the settings again
+                retryCount++;
+                await Task.Delay(1000);
                 await SaveSettings();
             }
-            catch (System.Exception retryEx)
+            else
             {
-                Debug.LogError("Failed to save settings to the database on retry: " + retryEx.Message);
+                retryCount = 0;  // reset retry count for future save attempts
 
-                // If saving settings fails again, you might want to revert to the previous settings
-                // You'll need to implement this method yourself
                 RevertToPreviousSettings();
-
-                // And notify the user
-                // You'll need to implement this method yourself
                 NotifyUserOfError("Failed to save settings. Your previous settings have been restored.");
             }
         }
+    }
+
+    private void RevertToPreviousSettings()
+    {
+        Debug.LogWarning("Reverting to previous settings. You'll need to implement the logic based on your game's requirements.");
+    }
+
+    private void NotifyUserOfError(string message)
+    {
+        Debug.Log("Displaying error to user: " + message);
+        // Assuming you have a dialog system in place
+        // DialogManager.ShowError(message);  
     }
 }

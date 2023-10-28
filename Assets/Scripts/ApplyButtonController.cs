@@ -4,48 +4,28 @@ using System;
 
 /// <summary>
 /// Manages the Apply button in the settings menu.
-/// Implements the Singleton, IUIElement, IErrorHandle, and ISaveState interfaces.
+/// Implements the IUIElement, IErrorHandle, and ISaveState interfaces.
 /// </summary>
 public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, ISaveState
 {
-    /// <summary>
-    /// The GameObject representing the Apply button.
-    /// </summary>
     [Tooltip("The apply button")]
     public GameObject applyButton;
 
-    /// <summary>
-    /// The Text object used for displaying error messages.
-    /// </summary>
     [Tooltip("The error message text object")]
     public Text errorMessage;
 
-    /// <summary>
-    /// Indicates whether the settings have changed.
-    /// </summary>
     private bool settingsChanged = false;
-
-    /// <summary>
-    /// Stores the previous settings.
-    /// </summary>
     private ISettings previousSettings;
 
-    /// <summary>
-    /// Singleton instance.
-    /// </summary>
     public static ApplyButtonController Instance { get; private set; }
 
-    /// <summary>
-    /// Event for settings change.
-    /// </summary>
     public static event Action OnSettingsChanged;
 
-    /// <summary>
-    /// Initializes the Singleton instance.
-    /// </summary>
+    private IOptionsManager optionsManager;
+    private ISettings settings;
+
     private void Awake()
     {
-        // Singleton pattern
         if (Instance == null)
         {
             Instance = this;
@@ -58,24 +38,27 @@ public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, IS
 
     void Start()
     {
+        // Dependency Injection (Assuming you have a method to get these instances)
+        optionsManager = DependencyInjector.GetDependency<IOptionsManager>();
+        settings = DependencyInjector.GetDependency<ISettings>();
+
         if (applyButton == null || errorMessage == null)
         {
             LogError("ApplyButton or ErrorMessage is not assigned in the inspector");
-            this.enabled = false; // Disable this script
+            this.enabled = false;
             return;
         }
 
-        if (OptionsManager.Instance == null)
+        if (optionsManager == null || settings == null)
         {
-            LogError("OptionsManager instance is not properly set up");
-            this.enabled = false; // Disable this script
+            LogError("Dependencies are not properly set up");
+            this.enabled = false;
             return;
         }
 
         Hide();
         HideErrorMessage();
 
-        // Subscribe to event
         OnSettingsChanged += OnSettingChanged;
     }
 
@@ -98,9 +81,9 @@ public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, IS
 
     public void OnApplyButtonClicked()
     {
-        if (OptionsManager.Instance.Validate())
+        if (optionsManager.Validate())
         {
-            previousSettings = OptionsManager.Instance.GetCurrentSettings().Clone();
+            previousSettings = settings.GetCurrentSettings().Clone();
             SaveState();
             settingsChanged = false;
             Hide();
@@ -120,13 +103,12 @@ public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, IS
 
     public void OnPreviewButtonClicked()
     {
-        if (OptionsManager.Instance.Validate())
+        if (optionsManager.Validate())
         {
-            previousSettings = OptionsManager.Instance.GetCurrentSettings().Clone();
+            previousSettings = settings.GetCurrentSettings().Clone();
             SaveState();
             HideErrorMessage();
-            // Delay the revert to allow for preview
-            Invoke("LoadState", 5f); // Revert after 5 seconds
+            Invoke("LoadState", 5f);
         }
         else
         {
@@ -158,14 +140,14 @@ public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, IS
 
     public void SaveState()
     {
-        OptionsManager.Instance.Save();
+        settings.SaveSettings();
     }
 
     public void LoadState()
     {
         if (previousSettings != null)
         {
-            OptionsManager.Instance.Load(previousSettings);
+            settings.Load(previousSettings);
         }
     }
 
@@ -181,7 +163,6 @@ public class ApplyButtonController : MonoBehaviour, IUIElement, IErrorHandle, IS
 
     private void OnDestroy()
     {
-        // Unsubscribe from event
         OnSettingsChanged -= OnSettingChanged;
     }
 }

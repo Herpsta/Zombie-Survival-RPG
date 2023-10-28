@@ -3,9 +3,51 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading.Tasks;
 
-public interface IOptionsManager
+// SOLID Principles and Design Patterns are applied across these interfaces.
+
+// Interface for Singleton pattern.
+public interface ISingleton
 {
-    void RegisterPanel(IPanelManager panelManager);  // Dependency injected
+    void Initialize();  // Single-Responsibility Principle
+}
+
+// Interface for Observer pattern.
+public interface IObserver
+{
+    void OnNotify(Event eventData);  // Open-Closed Principle
+}
+
+// Interface for Factory pattern.
+public interface IFactory<T>
+{
+    T Create();  // Liskov Substitution Principle
+}
+
+// Interface for State pattern.
+public interface IState
+{
+    void Enter();  // Interface Segregation Principle
+    void Execute();
+    void Exit();
+}
+
+// Interface for Dependency Injection.
+public interface IDependencyInjector
+{
+    T GetDependency<T>();  // Dependency Inversion Principle
+}
+
+// Interface for manager classes, adhering to the Singleton pattern.
+public interface IManager : ISingleton
+{
+    void Initialize();
+    void Shutdown();
+}
+
+// Interface for options management, adhering to the Dependency Injection pattern.
+public interface IOptionsManager : IDependencyInjector
+{
+    void RegisterPanel(IPanelManager panelManager);
     void ShowOnlyThisPanel(IPanelManager activePanel);
     void Save();
     void Load();
@@ -13,7 +55,7 @@ public interface IOptionsManager
     void HideAllPanels();
 }
 
-
+// Interface for settings, adhering to the Data-Driven approach.
 public interface ISettings
 {
     SimpleSQLManager DbManager { get; set; }
@@ -21,12 +63,14 @@ public interface ISettings
     void SaveSettings();
 }
 
+// Interface for graphics settings.
 public interface IGraphicsSettings
 {
     int ResolutionIndex { get; set; }
     bool FullScreen { get; set; }
 }
 
+// Interface for accessibility settings.
 public interface IAccessibilitySettings
 {
     bool Subtitles { get; set; }
@@ -38,52 +82,57 @@ public interface IAccessibilitySettings
     int AspectRatio { get; set; }
 }
 
+// Interface for sound settings.
 public interface ISoundSettings
 {
     float MasterVolume { get; set; }
 }
 
+// Interface for controls settings.
 public interface IControlsSettings
 {
     KeyCode JumpKey { get; set; }
 }
 
+// Interface for gameplay settings.
 public interface IGameplaySettings
 {
     int DifficultyLevel { get; set; }
 }
 
+// ... (Other interfaces can be extended in a similar fashion)
+// ... (Continuing from IGameplaySettings)
 
 // Interface for objects that can be interacted with.
 public interface IInteractable
 {
-    void Interact();
+    void Interact();  // Single-Responsibility Principle
 }
 
 // Interface for objects that can take damage.
 public interface IDamageable
 {
-    void TakeDamage(int amount);
+    void TakeDamage(int amount);  // Open-Closed Principle
 }
 
 // Interface for container objects like inventory.
 public interface IContainer
 {
-    void AddItem(Item item);
+    void AddItem(Item item);  // Liskov Substitution Principle
     void RemoveItem(Item item);
 }
 
 // Interface for saving and loading states.
 public interface ISaveState
 {
-    void SaveState();
+    void SaveState();  // Interface Segregation Principle
     void LoadState();
 }
 
 // Interface for objects that can be upgraded.
 public interface IUpgradable
 {
-    void Upgrade();
+    void Upgrade();  // Dependency Inversion Principle
 }
 
 // Interface for objects with AI behaviors.
@@ -190,30 +239,23 @@ public interface ICraftingIngredient
     void UseInCrafting();
 }
 
-// Interface for manager classes.
-public interface IManager
+// Interface for respawnable objects.
+public interface IRespawnable
 {
-    void Initialize();
-    void Shutdown();
+    void Respawn();
 }
 
-// Interface for movable objects.
-public interface IMovable
+// Interface for craftable objects.
+public interface ICraftable
 {
-    Vector3 CalculateNewPosition();
-    void UpdatePosition(Vector3 newPosition);
+    Item Craft();
 }
 
-// Interface for attackable objects.
-public interface IAttackable
+// Interface for resource gathering.
+public interface IResource
 {
-    void PerformAttack();
-}
-
-// Interface for killable objects.
-public interface IKillable
-{
-    void Die();
+    void Gather();
+    int GetResourceAmount();
 }
 
 // Interface for testable objects.
@@ -239,61 +281,30 @@ public interface ISQLiteDatabase
     List<Dictionary<string, object>> ExecuteQuery(string query);
 }
 
-// Interface for respawnable objects.
-public interface IRespawnable
+// Interface for movable objects.
+public interface IMovable
 {
-    void Respawn();
+    Vector3 CalculateNewPosition();
+    void UpdatePosition(Vector3 newPosition);
 }
 
-// Interface for craftable objects.
-public interface ICraftable
+// Interface for attackable objects.
+public interface IAttackable
 {
-    Item Craft();
+    void PerformAttack();
 }
 
-// Interface for resource gathering.
-public interface IResource
+// Interface for killable objects.
+public interface IKillable
 {
-    void Gather();
-    int GetResourceAmount();
+    void Die();
 }
 
-// Interface for Singleton pattern.
-public interface ISingleton
+public interface IWeapon
 {
-    void Initialize();
-}
-
-// Interface for Observer pattern.
-public interface IObserver
-{
-    void OnNotify(Event eventData);
-}
-
-// Interface for Observable pattern.
-public interface IObservable
-{
-    void RegisterObserver(IObserver observer);
-    void UnregisterObserver(IObserver observer);
-    void NotifyObservers(Event eventData);
-}
-
-// Interface for Factory pattern.
-public interface IFactory<T>
-{
-    T Create();
-}
-
-// Interface for State pattern.
-public interface IState
-{
-    void Enter();
-    void Execute();
-    void Exit();
-}
-
-// Interface for Dependency Injection.
-public interface IDependencyInjector
-{
-    T GetDependency<T>();
+    void PrimaryAction();  // For attacking, shooting, etc.
+    void SecondaryAction();  // For kicking, zooming in, etc.
+    void Block();  // For blocking
+    void Reload();  // For reloading
+    void PowerAttack();  // For power attacks
 }

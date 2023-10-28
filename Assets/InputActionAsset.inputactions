@@ -6,36 +6,9 @@
             "id": "766a6734-e39c-4fab-9faa-fe87b56d427a",
             "actions": [
                 {
-                    "name": "Forward",
+                    "name": "Movement",
                     "type": "Button",
-                    "id": "fbcdb6ed-9337-4e8a-a79f-b7af576b53d6",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Backward",
-                    "type": "Button",
-                    "id": "2e19e645-3957-4840-92a3-1409a60f2af9",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Left",
-                    "type": "Button",
-                    "id": "c0d436c3-9936-441e-b2be-749c86af66ae",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Right",
-                    "type": "Button",
-                    "id": "f2413aec-a1b7-466d-88cf-1af47420ff81",
+                    "id": "1f94117f-a8fa-4c0a-8a0c-40d13de8a457",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -87,9 +60,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Block",
+                    "name": "Reload",
                     "type": "Button",
-                    "id": "bad1ecd9-9475-4464-ac4c-51c35437cce1",
+                    "id": "70216b68-ae70-4c74-86bd-7a8ec986a7f9",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "SecondaryAttackHeld",
+                    "type": "Button",
+                    "id": "d5ecc826-ad48-4b2d-a013-2f0c4dc84508",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -97,50 +79,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "a59a2f1a-8a6b-4f47-9436-0297039841b0",
-                    "path": "<Keyboard>/w",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Forward",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "7b49f36b-4762-4585-8a68-e47cd4cfcd89",
-                    "path": "<Keyboard>/s",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Backward",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "1be15f71-d552-4731-8c33-c87aed837ae7",
-                    "path": "<Keyboard>/a",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Left",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "852b8f23-e0db-4919-9791-4ecd4acb730c",
-                    "path": "<Keyboard>/d",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Right",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "",
                     "id": "761166e3-ebc2-461c-bcbd-b71da3a0b946",
@@ -198,12 +136,67 @@
                 },
                 {
                     "name": "",
-                    "id": "329e61d3-fe57-45c2-bdb5-03ec1cafa734",
-                    "path": "<Mouse>/rightButton",
+                    "id": "4e27fa2d-cda9-4208-b515-44be5754fae6",
+                    "path": "",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Block",
+                    "action": "Reload",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d5072150-2158-43f6-ad40-03b947e41f6a",
+                    "path": "<Keyboard>/w",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "331cbbe3-2110-4574-8160-b4cdc8516637",
+                    "path": "<Keyboard>/a",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f415df57-6c5b-4592-a0ae-d5c71b699f5e",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "e8612071-2823-4aac-b233-1f0681fad07d",
+                    "path": "<Keyboard>/d",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Movement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5c6c321e-7e27-4206-8217-375bfa8e024c",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "SecondaryAttackHeld",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
